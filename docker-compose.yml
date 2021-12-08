@@ -1,0 +1,8 @@
+version: '2.1'
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: -jar DynamoDBLocal.jar -sharedDb -inMemory -port 4566
+    ports:
+      - '4566:4566'
+    working_dir: /home/dynamodblocal

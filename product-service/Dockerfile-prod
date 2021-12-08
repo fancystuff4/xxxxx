@@ -1,0 +1,14 @@
+FROM node:14.17.5-alpine as prod
+
+RUN npm i -g npm@7.20.1
+
+ARG NODE_ENV=production
+
+WORKDIR /usr/src/app
+
+COPY package.json ./
+
+RUN npm i --only=production
+
+RUN rm -f package.json
+
