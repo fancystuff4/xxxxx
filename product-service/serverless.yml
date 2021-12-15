@@ -1,0 +1,57 @@
+service:
+    name: product-service
+
+plugins:
+    - serverless-plugin-typescript
+    - serverless-plugin-optimize
+    - serverless-offline
+
+provider:
+    name: aws
+    tracing:
+        apiGateway: true
+    runtime: nodejs14.x
+    memorySize: 256
+    stage: dev
+    region: us-east-1
+    environment:
+        PRODUCTS_TABLE_NAME: ${self:custom.ProductsTable.name}
+    iamRoleStatements:
+        -   Effect: Allow
+            Action:
+                - dynamodb:PutItem
+                - dynamodb:Scan
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+            Resource:
+                - ${self:custom.ProductsTable.arn}
+
+package:
+    individually: true
+
+resources:
+    Resources:
+        ProductsTable:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: ProductsTable-dev
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+              - AttributeName: id
+                AttributeType: S
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+
+functions:
+    main:
+        handler: src/main.handler
+        events:
+          - http:
+              method: any
+              path: /{proxy+}
+custom:
+    ProductsTable:
+        name: !Ref ProductsTable
+        arn: !GetAtt ProductsTable.Arn

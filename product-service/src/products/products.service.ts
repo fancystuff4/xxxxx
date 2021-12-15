@@ -1,61 +1,59 @@
 import { Injectable } from '@nestjs/common';
-import { ProductCatetory, ProductStatus } from './Product.enum';
-import {v1 as uuid} from 'uuid';
-import { ProductSearchDto } from './ProductSearch.dto';
-import { ProductUpdateDto } from './ProductUpdate.dto';
-import { ProductCreateDto } from './ProductCreate.dto';
-import { Product } from './schemas/Product.schema';
-import { InjectModel } from '@nestjs/mongoose';
-import { ProductRepository } from './Product.repository';
+import { CreateProductDto } from './dto/createProduct.dto';
+import { ProductRepository } from './product.repository';
+import { v4 as uuid } from 'uuid';
 
 @Injectable()
-export class ProductsService {
+export class ProductService {
+  constructor(private productRepository: ProductRepository) {}
 
-    constructor(private productRepository: ProductRepository){
+  async createProduct(newProduct: CreateProductDto) {
+    return this.productRepository.createProduct(newProduct);
+  }
 
-    }
+  getProductById(id: string) {
+    return this.productRepository.getProductById(id);
+  }
 
-    async getAllProducts(): Promise<Product[]>{
-        return await this.productRepository.findAll();
-    }
+  getProducts(paginationObj: { Limit?: number; startKey?: string }) {
+    return this.productRepository.getProducts(paginationObj);
+  }
 
-    async createProduct(productCreatDto : ProductCreateDto): Promise<Product>{
-       
-        return await this.productRepository.create(productCreatDto);
+  deleteProductById(id: string) {
+    return this.productRepository.deleteProductById(id);
+  }
 
-    }
+  updateProduct(id: string, attributeObjToUpdate: object) {
+    const ExpressionAttributeNames = {};
+    const ExpressionAttributeValues = {};
+    let UpdateExpression = 'SET ';
 
-    // productSearch(productSearchDto : ProductSearchDto){
-    //     const {status, title} = productSearchDto;
-    //     let products = this.getAllProducts();
-    //     console.log(status)
-    //     if(status){
-    //         products = products.filter(product => product.status === status)
-    //     }
-    //     if(title){
-    //         products= products.filter(product=> product.title.includes(title));
-    //     }
-    //     console.log(products);
-    //     return products;
-        
-    // }
+    const fieldAttributes = Object.keys(attributeObjToUpdate).map((attr) => ({
+      keyAlias: `#${uuid().substr(0, 5)}`,
+      valueAlias: `:${uuid().substr(0, 5)}`,
+      key: attr,
+      value: attributeObjToUpdate[attr],
+    }));
 
-    // getProductById(id: string): Product {
+    fieldAttributes.forEach((input) => {
+      ExpressionAttributeValues[input.valueAlias] = input.value;
+      ExpressionAttributeNames[input.keyAlias] = input.key;
+      UpdateExpression += `${input.keyAlias}= ${input.valueAlias},`;
+    });
 
-    //     const products = this.getAllProducts();
-    //     return products.find(product=> product.id===id);
-    // }
+    UpdateExpression = UpdateExpression.substring(
+      0,
+      UpdateExpression.length - 1,
+    );
 
-    // updateProduct(productUpdateDto: ProductUpdateDto): Product {
-    //     const {id, description} = productUpdateDto;
-    //     let product = this.getProductById(id);
-    //     product.description = description;
-    //     return product;
-    // }
+    ExpressionAttributeValues[':id'] = id;
+    const ConditionExpression = 'id = :id';
 
-    // deleteProduct(id: string){
-    //     let products = this.getAllProducts();
-    //     this.products = products.filter(product =>  product.id !==id)
-    //     return (this.products.length !== products.length)
-    // }
+    return this.productRepository.updateProduct(id, {
+      UpdateExpression,
+      ExpressionAttributeNames,
+      ExpressionAttributeValues,
+      ConditionExpression,
+    });
+  }
 }

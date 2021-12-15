@@ -1,58 +1,92 @@
-import { Body, Controller, Delete, Get, HttpCode, HttpStatus, NotFoundException, Param, Post, Put, Query, UsePipes, ValidationPipe } from '@nestjs/common';
-import { ProductCategoryValidationPipe } from 'src/product-category-validation.pipe';
-
-import { ProductCreateDto } from './ProductCreate.dto';
-import { ProductsService } from './products.service';
-import { ProductSearchDto } from './ProductSearch.dto';
-import { ProductUpdateDto } from './ProductUpdate.dto';
-import { Product } from './schemas/Product.schema';
+import {
+  Controller,
+  Body,
+  HttpStatus,
+  Res,
+  Post,
+  Get,
+  Param,
+  Delete,
+  Patch,
+  Query,
+  BadRequestException,
+} from '@nestjs/common';
+import { v4 as uuid } from 'uuid';
+import { CreateProductDto } from './dto/createProduct.dto';
+import { GetProductQueryDto } from './dto/getProductQuery.dto';
+import { UpdateProductDto } from './dto/updateProduct.dto';
+import { ProductService } from './products.service';
+import { sendResponse } from '../helpers/utils';
 
 @Controller('products')
 export class ProductsController {
+  constructor(private readonly productService: ProductService) {}
 
-    constructor(private productsService: ProductsService){
+  @Post()
+  async createProduct(
+    @Body() createProductDto: CreateProductDto,
+    @Res() res: any,
+  ) {
+    const newProduct = {
+      id: uuid(),
+      title: createProductDto.title,
+      category: createProductDto.category,
+      price: createProductDto.price,
+    };
 
+    await this.productService.createProduct(newProduct);
+
+    const createdProduct = await this.productService.getProductById(
+      newProduct.id,
+    );
+
+    sendResponse(res, HttpStatus.CREATED, createdProduct.Item);
+  }
+
+  @Get()
+  async getProducts(@Res() res: any, @Query() query: GetProductQueryDto) {
+    const { limit: Limit, startKey } = query;
+    const products = await this.productService.getProducts({
+      Limit,
+      startKey,
+    });
+
+    sendResponse(res, HttpStatus.OK, products);
+  }
+
+  @Get(':id')
+  async getProductById(
+    @Param('id') id: string,
+    @Res({ passthrough: true }) res: any,
+  ) {
+    const product = await this.productService.getProductById(id);
+
+    if (product.Item) {
+      sendResponse(res, HttpStatus.OK, product.Item);
+    } else {
+      throw new BadRequestException('Product does not exist.');
     }
+  }
 
-    @Get()
-    async getAllProducts(@Query() param: ProductSearchDto): Promise<Product[]>{
+  @Delete(':id')
+  async deleteProductById(@Param('id') id: string, @Res() res: any) {
+    const result = await this.productService.deleteProductById(id);
 
-        
-        // if(Object.keys(param).length){
-        //     console.log('filter',param);
-        //     return this.productsService.productSearch(param)
-        // } else {
-        //     console.log('no filter');
-        //     return this.productsService.getAllProducts();
-        // }
-        return await this.productsService.getAllProducts()
+    if (result.Attributes) {
+      sendResponse(res, HttpStatus.OK);
+    } else {
+      throw new BadRequestException('Product is not found to delete');
     }
+  }
 
-    @Post()
-    @UsePipes(ValidationPipe)
-    @UsePipes(new ProductCategoryValidationPipe())
-    async createProduct(@Body() productCreateDto: ProductCreateDto): Promise<Product>{
-        return await this.productsService.createProduct(productCreateDto);
+  @Patch(':id')
+  async updateProduct(
+    @Body() reqBody: UpdateProductDto,
+    @Param('id') id: string,
+    @Res() res: any,
+  ) {
+    const updatedProduct = await this.productService.updateProduct(id, reqBody);
 
-    }
-
-    // @Get('/:id')
-    // getProductById(@Param("id") id : string) {
-    //     return this.productsService.getProductById(id);
-    // }
-
-    // @Put('/:id')
-    // updateProduct(@Param('id') id: string,@Body() productUpdateDto:ProductUpdateDto): Product {
-    //     productUpdateDto.id=id;
-    //     return this.productsService.updateProduct(productUpdateDto)
-    // }
-
-    // @Delete('/:id')
-    // @HttpCode(204)
-    // deleteProduct(@Param('id') id : string) {
-    //      if(!this.productsService.deleteProduct(id)){
-    //         throw new NotFoundException('Product does not exists');
-    //      }
-
-    // }
+    sendResponse(res, HttpStatus.OK, updatedProduct.Attributes);
+  }
 }

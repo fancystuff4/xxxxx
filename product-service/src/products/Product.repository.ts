@@ -1,20 +1,63 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { ProductCreateDto } from "./ProductCreate.dto";
-import { Product, ProductDocument } from "./schemas/Product.schema";
+import { CreateProductDto } from './dto/createProduct.dto';
+import client from '../db/client';
 
-@Injectable()
+type getProductParams = {
+  TableName: string;
+  Select: string;
+  Limit?: number;
+  ExclusiveStartKey?: object;
+};
+
 export class ProductRepository {
-    constructor(@InjectModel(Product.name) private productModel: Model<ProductDocument>){
+  createProduct(newProduct: CreateProductDto) {
+    return client
+      .put({
+        TableName: 'ProductsTable-dev',
+        Item: newProduct,
+      })
+      .promise();
+  }
 
-    }
+  getProductById(id: string) {
+    return client
+      .get({
+        TableName: 'ProductsTable-dev',
+        Key: { id },
+      })
+      .promise();
+  }
 
-    async create(createProductDTO: ProductCreateDto): Promise<Product>{
-        let product = new this.productModel(createProductDTO);
-        return await product.save()
-    }
-    async findAll(): Promise<Product[]>{
-        return await this.productModel.find();
-    }
+  getProducts(paginationObj: { Limit?: number; startKey?: string }) {
+    const params: getProductParams = {
+      TableName: 'ProductsTable-dev',
+      Select: 'ALL_ATTRIBUTES',
+    };
+
+    if (paginationObj?.Limit) params.Limit = paginationObj.Limit;
+    if (paginationObj?.startKey)
+      params.ExclusiveStartKey = { id: paginationObj.startKey };
+
+    return client.scan(params).promise();
+  }
+
+  deleteProductById(id: string) {
+    return client
+      .delete({
+        TableName: 'ProductsTable-dev',
+        Key: { id },
+        ReturnValues: 'ALL_OLD',
+      })
+      .promise();
+  }
+
+  updateProduct(id: string, updateOptions: any) {
+    return client
+      .update({
+        TableName: 'ProductsTable-dev',
+        Key: { id },
+        ReturnValues: 'ALL_NEW',
+        ...updateOptions,
+      })
+      .promise();
+  }
 }
