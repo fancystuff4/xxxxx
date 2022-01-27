@@ -3,6 +3,7 @@ import { v4 as uuid } from 'uuid';
 import { internalErrMsg, isValidRole } from 'src/common/helpers';
 import { ROLES } from 'src/common/user.types';
 import { UserRepository } from './user.repository';
+import { GSI_ATTRS } from './common';
 
 @Injectable()
 export class UserService {
@@ -31,10 +32,25 @@ export class UserService {
         userEntity.tenantId = uuid().substring(0, 8);
         userEntity.SK = ROLES.TENANT.SK;
         userEntity.roleGSIPK = ROLES.TENANT.TYPE;
-        userEntity.roleGSISK = `tenantId-${userEntity.tenantId}-username-username`;
+        userEntity.roleGSISK = `tenantId-${userEntity.tenantId}-username-${username}`;
         break;
       case ROLES.USER.TYPE:
         if (!tenantId) return internalErrMsg('User should have a tenantId');
+
+        const getTenantResult = await this.findOneInGSI(
+          ROLES.TENANT.TYPE,
+          `tenantId-${tenantId}`,
+          GSI_ATTRS.ROLE_GSI.INDEX_NAME,
+        );
+
+        if (getTenantResult.errMsg) return getTenantResult;
+
+        if (
+          !getTenantResult.Items?.length ||
+          getTenantResult.Items[0].tenantId !== tenantId
+        )
+          return internalErrMsg('Invalid tenantId');
+
         userEntity.SK = tenantId;
         userEntity.roleGSIPK = ROLES.USER.TYPE;
         userEntity.roleGSISK = `tenantId-${tenantId}-username-${username}`;
@@ -43,7 +59,19 @@ export class UserService {
         break;
     }
 
-    const result = await this.dbRepository.create(userEntity);
+    const otherOptions = {
+      ConditionExpression: '#username <> :username and #SK <> :SK',
+      ExpressionAttributeValues: {
+        ':username': userEntity.username,
+        ':SK': userEntity.SK,
+      },
+      ExpressionAttributeNames: {
+        '#username': 'username',
+        '#SK': 'SK',
+      },
+    };
+
+    const result = await this.dbRepository.create(userEntity, otherOptions);
 
     return result;
   }
@@ -70,7 +98,7 @@ export class UserService {
         break;
 
       default:
-        break;
+        return internalErrMsg('Invalid role is provided');
     }
 
     const KeyConditionExpression = `username=:username and SK=:SK`;
@@ -81,6 +109,42 @@ export class UserService {
 
     const result = await this.dbRepository.find({
       KeyConditionExpression,
+      ExpressionAttributeValues,
+    });
+
+    return result;
+  }
+
+  async findOneInGSI(gsiPK: string, gsiSK: string, gsiIndex: 'roleGSI') {
+    let gsiPKName: string;
+    let gsiSKName: string;
+
+    switch (gsiIndex) {
+      case GSI_ATTRS.ROLE_GSI.INDEX_NAME:
+        gsiPKName = GSI_ATTRS.ROLE_GSI.PK_NAME;
+        gsiSKName = GSI_ATTRS.ROLE_GSI.SK_NAME;
+        break;
+      default:
+        return internalErrMsg('Invalid GSI index');
+    }
+
+    const KeyConditionExpression = `#gsiPK=:gsiPK and begins_with(#gsiSK, :gsiSK)`;
+
+    const ExpressionAttributeNames = {
+      '#gsiPK': gsiPKName,
+      '#gsiSK': gsiSKName,
+    };
+
+    const ExpressionAttributeValues = {
+      ':gsiPK': gsiPK,
+      ':gsiSK': gsiSK,
+    };
+
+    const result = await this.dbRepository.find({
+      IndexName: GSI_ATTRS.ROLE_GSI.INDEX_NAME,
+      ScanIndexForward: true,
+      KeyConditionExpression,
+      ExpressionAttributeNames,
       ExpressionAttributeValues,
     });
 

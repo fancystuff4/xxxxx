@@ -6,10 +6,17 @@ import {
   Req,
   UseGuards,
   Get,
+  HttpStatus,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { Response, Request } from 'express';
-import { JWT_COOKIE_CONFIG, TOKENS, AuthDto, PublicRoute } from './common';
+import {
+  JWT_COOKIE_CONFIG,
+  TOKENS,
+  AuthDto,
+  PublicRoute,
+  sendResponse,
+} from './common';
 import { RtGuard } from './guards';
 
 @Controller('auth')
@@ -19,8 +26,8 @@ export class AuthController {
   @PublicRoute()
   @Post('/local/signup')
   async localSignUp(@Res() res, @Body() body: AuthDto) {
-    await this.authService.localSignUp(body);
-    res.send('Successfully created');
+    const result = await this.authService.localSignUp(body);
+    sendResponse(res, HttpStatus.CREATED, result);
   }
 
   @PublicRoute()
@@ -39,7 +46,7 @@ export class AuthController {
       JWT_COOKIE_CONFIG.refresh_token,
     );
 
-    res.json(tokens);
+    sendResponse(res, HttpStatus.OK, tokens);
   }
 
   @Post('/logout')
@@ -47,12 +54,12 @@ export class AuthController {
     res.clearCookie(TOKENS.ACCESS_TOKEN);
     res.clearCookie(TOKENS.REFRESH_TOKEN);
 
-    res.send('ok');
+    sendResponse(res, HttpStatus.OK);
   }
 
   @Get('/profile')
-  getProfile(@Req() req: Request) {
-    return req.user;
+  getProfile(@Req() req: Request, @Res() res: Response) {
+    sendResponse(res, HttpStatus.OK, req.user);
   }
 
   @PublicRoute()
@@ -73,6 +80,6 @@ export class AuthController {
       JWT_COOKIE_CONFIG.refresh_token,
     );
 
-    res.json(tokens);
+    sendResponse(res, HttpStatus.OK, tokens);
   }
 }

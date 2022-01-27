@@ -22,13 +22,13 @@ export class AtJWTStrategy extends PassportStrategy(Strategy, 'jwt') {
 
     const result = await this.userService.findOne(username, role, tenantId);
 
-    if (result.errMsg) throw new BadRequestException(result.errMsg);
+    if (result.errMsg) throw new BadRequestException([result.errMsg]);
 
     const {
       Items: [user],
     } = result;
 
-    if (!user) throw new NotFoundException('User is not found');
+    if (!user) throw new NotFoundException(['User is not found']);
 
     delete user.password;
     return user;

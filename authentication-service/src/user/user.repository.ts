@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { internalErrMsg } from 'src/common/helpers';
+import { DYNAMO_CONDITIONAL_ERROR } from './common';
 import { Dynamo } from './db/dynamo';
 
 @Injectable()
@@ -21,17 +22,21 @@ export class UserRepository {
     }
   }
 
-  async create(input: object): Promise<any> {
+  async create(input: object, otherOptions = {}): Promise<any> {
     try {
       const result = await this.database.client
         .put({
           TableName: 'user-table',
           Item: input,
+          ...otherOptions,
         })
         .promise();
 
       return result;
     } catch (error) {
+      if (error.code === DYNAMO_CONDITIONAL_ERROR)
+        return internalErrMsg(DYNAMO_CONDITIONAL_ERROR);
+
       return internalErrMsg();
     }
   }
