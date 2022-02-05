@@ -21,6 +21,6 @@ export class AuthorizationGuard extends AuthGuard('jwt') {
   }
 
   handleRequest(err: any, user: any, info: any, ctx: any): any {
-    handleTokenVerifation(err, user, info);
+    return handleTokenVerifation(err, user, info);
   }
 }

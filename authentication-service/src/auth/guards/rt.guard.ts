@@ -9,6 +9,6 @@ export class RtGuard extends AuthGuard('rt-jwt') {
   }
 
   handleRequest(err: any, user: any, info: any, ctx: any): any {
-    handleTokenVerifation(err, user, info);
+    return handleTokenVerifation(err, user, info);
   }
 }
