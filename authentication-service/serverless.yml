@@ -1,0 +1,74 @@
+service:
+    name: authentication-service
+
+plugins:
+    - serverless-plugin-typescript
+    - serverless-plugin-optimize
+    - serverless-offline
+
+provider:
+    name: aws
+    tracing:
+        apiGateway: true
+    runtime: nodejs14.x
+    memorySize: 256
+    stage: dev
+    region: us-east-1
+    environment:
+        USERS_TABLE_NAME: ${self:custom.UsersTable.name}
+    iamRoleStatements:
+        -   Effect: Allow
+            Action:
+                - dynamodb:PutItem
+                - dynamodb:Scan
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:Query
+            Resource:
+                - ${self:custom.UsersTable.arn}
+
+package:
+    individually: true
+
+resources:
+    Resources:
+        UsersTable:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: user-table
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+              - AttributeName: username
+                AttributeType: S
+              - AttributeName: SK
+                AttributeType: S
+              - AttributeName: roleGSIPK
+                AttributeType: S
+              - AttributeName: roleGSISK
+                AttributeType: S
+            KeySchema:
+              - AttributeName: username
+                KeyType: HASH
+              - AttributeName: SK
+                KeyType: RANGE
+            GlobalSecondaryIndexes:
+              - 
+                IndexName: roleGSI
+                KeySchema:
+                  - AttributeName: roleGSIPK
+                    KeyType: HASH
+                  - AttributeName: roleGSISK
+                    KeyType: RANGE
+                Projection: 
+                    ProjectionType: ALL
+functions:
+    main:
+        handler: src/main.handler
+        events:
+          - http:
+              method: any
+              path: /{proxy+}
+custom:
+    UsersTable:
+        name: !Ref UsersTable
+        arn: !GetAtt UsersTable.Arn
