@@ -1,0 +1,1 @@
+export { ItemsInBody } from './requestBody.decorator';

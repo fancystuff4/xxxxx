@@ -1,1 +1,0 @@
-export const MONGO_CONNECTION ="mongodb+srv://root:passWORD321@cluster0.yale6.mongodb.net/ecom?retryWrites=true&w=majority"
