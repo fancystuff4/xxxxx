@@ -1,2 +1,2 @@
 export { Brand } from './brand.entity';
-export { BrandLogo, BrandLogoType } from './brand-logo.entity';
+export { BrandLogo, BrandLogoType, BrandLogoSize } from './brand-logo.entity';

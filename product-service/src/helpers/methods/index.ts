@@ -30,11 +30,9 @@ export const internalErrMsg = (msg?: string, statusCode?: number) => ({
   errCode: statusCode,
 });
 
-export const throwError = (error: any, options?: { field: string }) => {
+export const throwError = (error: any, options?: { message: string }) => {
   if (error.code === 'ER_DUP_ENTRY')
-    throw new BadRequestException([
-      options?.field ? `${options.field} already exists` : 'Duplicate entry',
-    ]);
+    throw new BadRequestException([options?.message || 'Duplicate entry']);
 
   if (error.errOrigin === INTERNAL) {
     if (error.errCode === HttpStatus.BAD_REQUEST)

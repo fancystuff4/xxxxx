@@ -1,19 +1,39 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne } from 'typeorm';
+import {
+  Entity,
+  Column,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  Index,
+} from 'typeorm';
 import { Brand } from './brand.entity';
 
-export type BrandLogoType = { src: string; size: 'Small' | 'Medium' | 'Large' };
+export enum BrandLogoSize {
+  SMALL = 'SMALL',
+  MEDIUM = 'MEDIUM',
+  LARGE = 'LARGE',
+}
+
+export type BrandLogoType = { src: string; size: BrandLogoSize };
 
 @Entity()
+@Index(['brand', 'sizeType'], { unique: true })
 export class BrandLogo {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
+  src: string;
+
   @Column({
-    nullable: false,
-    type: 'simple-json',
+    type: 'enum',
+    enum: BrandLogoSize,
+    default: BrandLogoSize.MEDIUM,
   })
-  logo: BrandLogoType;
+  sizeType: BrandLogoSize;
 
   @ManyToOne(() => Brand, (brand) => brand.logos)
-  brand: Brand[];
+  brand: Brand;
+
+  @Column()
+  brandId: string;
 }

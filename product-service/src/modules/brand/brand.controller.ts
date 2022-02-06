@@ -13,7 +13,7 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Brand } from 'src/database/entities';
+import { Brand, BrandLogo } from 'src/database/entities';
 import { EMPTY_OBJECT } from 'src/helpers/constants';
 import { PaginationDto } from 'src/helpers/common-dtos';
 import {
@@ -22,12 +22,18 @@ import {
   sendResponse,
 } from 'src/helpers/methods';
 import { BrandService } from './brand.service';
-import { BrandDto, UpdateBrandDto } from './dto';
+import {
+  BrandDto,
+  BrandLogoCreateDto,
+  BrandLogoUpdateDto,
+  UpdateBrandDto,
+} from './dto';
 
 @Controller('brands')
 export class BrandController {
   constructor(private brandService: BrandService) {}
 
+  // APIs for Brand properties other than its logo
   @Post()
   async createBrand(
     @Res() res: Response,
@@ -100,6 +106,65 @@ export class BrandController {
   ): Promise<void> {
     await this.brandService.deleteBrands(brandId);
 
+    sendResponse(res, HttpStatus.OK);
+  }
+
+  // Brand APIs for its logos
+  @Post(':id/logos')
+  async addNewLogo(
+    @Res() res: Response,
+    @Param('id', insertValidationPipe(PipeDataType.UUID))
+    brandId: string,
+    @Body() body: BrandLogoCreateDto,
+  ): Promise<void> {
+    const newLogo: BrandLogo = await this.brandService.addNewLogo(
+      brandId,
+      body,
+    );
+
+    sendResponse(res, HttpStatus.CREATED, newLogo);
+  }
+
+  // sends all the logos if 'ids' array is not sent in the query
+  // if 'ids' is sent, only the logos with those id are sent;
+  @Get(':id/logos')
+  async getLogos(
+    @Res() res: Response,
+    @Param('id', insertValidationPipe(PipeDataType.UUID))
+    brandId: string,
+    @Query('logoids') logoIds: string[],
+  ): Promise<void> {
+    const logos = await this.brandService.getLogos(brandId, logoIds);
+
+    sendResponse(res, HttpStatus.OK, logos);
+  }
+
+  @Put(':id/logos/:logoId')
+  async updateLogo(
+    @Res() res: Response,
+    @Param('id', insertValidationPipe(PipeDataType.UUID))
+    brandId: string,
+    @Param('logoId', insertValidationPipe(PipeDataType.UUID))
+    logoId: string,
+    @Body() body: BrandLogoUpdateDto,
+  ): Promise<void> {
+    const updatedLogo: BrandLogo = await this.brandService.updateLogo(
+      brandId,
+      logoId,
+      body,
+    );
+    sendResponse(res, HttpStatus.OK, updatedLogo);
+  }
+
+  @Delete(':id/logos/:logoId')
+  async deleteLogo(
+    @Res() res: Response,
+    @Param('id', insertValidationPipe(PipeDataType.UUID))
+    brandId: string,
+    @Param('logoId', insertValidationPipe(PipeDataType.UUID))
+    logoId: string,
+  ): Promise<void> {
+    await this.brandService.deleteLogo(brandId, logoId);
     sendResponse(res, HttpStatus.OK);
   }
 }

@@ -4,3 +4,7 @@ export const OFFSET = 'offset';
 export type objType<T> = {
   [key: string]: T;
 };
+
+export interface ValidateInterface {
+  isValid: boolean;
+}

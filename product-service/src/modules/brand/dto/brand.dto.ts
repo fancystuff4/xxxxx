@@ -1,10 +1,10 @@
 import { IsNotEmpty, IsOptional, IsBoolean } from 'class-validator';
 
 export class BrandDto {
-    @IsNotEmpty()
-    name: string
+  @IsNotEmpty()
+  name: string;
 
-    @IsOptional()
-    @IsBoolean()
-    active: boolean
+  @IsOptional()
+  @IsBoolean()
+  active: boolean;
 }
