@@ -1,4 +1,4 @@
-import { BadRequestException, HttpStatus, Injectable } from '@nestjs/common';
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category, CategoryImage } from 'src/database/entities';
 import { PaginationDto } from 'src/helpers/common-dtos';
@@ -283,35 +283,44 @@ export class CategoryService {
     imageId: string,
     updateObj: CategoryImageUpdateDto,
   ): Promise<CategoryImage> {
-    const updateImageResult = await this.categoryImageRepository.update(
-      {
-        id: imageId,
-        categoryId,
-      },
-      updateObj,
-    );
+    try {
+      const updateImageResult = await this.categoryImageRepository.update(
+        {
+          id: imageId,
+          categoryId,
+        },
+        updateObj,
+      );
 
-    if (updateImageResult.affected < 1)
-      throw new BadRequestException(['Image is not found']);
+      if (updateImageResult.affected < 1)
+        throw internalErrMsg('Image is not found', HttpStatus.BAD_REQUEST);
 
-    const updatedImage = await this.categoryImageRepository.findOne({
-      where: { id: imageId },
-      relations: ['category'],
-    });
+      const updatedImage = await this.categoryImageRepository.findOne({
+        where: { id: imageId },
+        relations: ['category'],
+      });
 
-    return updatedImage;
+      return updatedImage;
+    } catch (error) {
+      throwError(error);
+    }
   }
 
   async deleteImage(categoryId: string, imageId: string): Promise<void> {
-    const deleteResult = await this.categoryImageRepository.delete({
-      id: imageId,
-      categoryId,
-    });
+    try {
+      const deleteResult = await this.categoryImageRepository.delete({
+        id: imageId,
+        categoryId,
+      });
 
-    if (deleteResult.affected < 1)
-      throw new BadRequestException([
-        'Image is not found. Check the category and image id',
-      ]);
+      if (deleteResult.affected < 1)
+        throw internalErrMsg(
+          'Image is not found. Check the category and image id',
+          HttpStatus.BAD_REQUEST,
+        );
+    } catch (error) {
+      throwError(error);
+    }
   }
 
   async deleteImages(): Promise<void> {
