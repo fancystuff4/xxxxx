@@ -11,4 +11,7 @@ export class CategoryImage {
 
   @ManyToOne(() => Category, (category) => category.images)
   category: Category;
+
+  @Column()
+  categoryId: string;
 }
