@@ -6,7 +6,7 @@ import {
   ParseBoolPipe,
   ParseUUIDPipe,
 } from '@nestjs/common';
-import { objType } from '../constants';
+import { ParseArrayFromOptionalString } from '../pipes/parseArray.pipe';
 
 export const INTERNAL = 'INTERNAL';
 export const sendResponse = (
@@ -54,6 +54,7 @@ export const _size = (arrayOrObject) =>
 export enum PipeDataType {
   UUID = 'UUID',
   BOOLEAN = 'BOOLEAN',
+  OPTIONAL_ARRAY = 'OPTIONAL_ARRAY',
 }
 
 export const insertValidationPipe = (type?: PipeDataType) => {
@@ -68,6 +69,8 @@ export const insertValidationPipe = (type?: PipeDataType) => {
         exceptionFactory: (errors) => new BadRequestException([errors]),
       });
 
+    case PipeDataType.OPTIONAL_ARRAY:
+      return new ParseArrayFromOptionalString();
     default:
       break;
   }

@@ -283,7 +283,7 @@ export class BrandService {
   }
 
   // following function finds a brand with given conditions
-  // returns 'isValid' true
+  // returns 'isValid' true if found
   async validateBrandAndReturn(
     conditionObj: objType<any>,
     options?: { relations: string[] },
