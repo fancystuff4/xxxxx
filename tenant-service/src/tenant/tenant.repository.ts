@@ -169,7 +169,6 @@ export class TenantRepository {
         }
 
 
-
         return { ok: true, data: result.Attributes };
     }
 
@@ -199,7 +198,6 @@ export class TenantRepository {
                 throw new InternalServerErrorException(error);
             }
         }
-
 
 
         return { ok: true, data: result.Attributes };
