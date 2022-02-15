@@ -11,7 +11,7 @@ import { SubCategoryImage } from './sub-category-image.entity';
 import { SubCategoryOption } from './sub-category-option.entity';
 
 @Entity()
-@Index(['name', 'category'], { unique: true })
+@Index(['name', 'categoryId'], { unique: true })
 export class SubCategory {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -33,4 +33,7 @@ export class SubCategory {
     (subCategoryOption) => subCategoryOption.subCategory,
   )
   options: SubCategoryOption[];
+
+  @Column()
+  categoryId: string;
 }

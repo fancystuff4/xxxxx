@@ -22,9 +22,12 @@ import {
   sendResponse,
 } from 'src/helpers/methods';
 import { CategoryService } from './category.service';
-import { CategoryCreateDto, CategoryImageCreateDto } from './dto';
-import { CategoryUpdateDto } from './dto/category';
-import { CategoryImageUpdateDto } from './dto/categoryImage';
+import {
+  CategoryCreateDto,
+  CategoryImageCreateDto,
+  CategoryUpdateDto,
+  CategoryImageUpdateDto,
+} from './dto';
 
 @Controller('categories')
 export class CategoryController {
@@ -132,6 +135,8 @@ export class CategoryController {
   }
 
   // Get images with optional pagination and filtering ids
+  // without any valid query params, it will return the all the images
+  // of the category
   @Get(':id/images')
   async getImages(
     @Res() res: Response,

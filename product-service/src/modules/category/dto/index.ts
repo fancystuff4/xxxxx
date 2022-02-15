@@ -1,2 +1,6 @@
-export { CategoryCreateDto } from './category';
-export { CategoryImageCreateDto } from './categoryImage';
+export { CategoryCreateDto, CategoryUpdateDto } from './category';
+export {
+  CategoryImageCreateDto,
+  CategoryImageUpdateDto,
+} from './categoryImage';
+export { SubCatCreateDto, SubCatUpdateDto } from './subCategory';
