@@ -75,3 +75,14 @@ export const insertValidationPipe = (type?: PipeDataType) => {
       break;
   }
 };
+
+export const ensureNoOffsetWithoutLimit = (limit: any, offset: any) => {
+  const limitIsNotANumber = isNaN(limit);
+  const offsetIsANumber = !isNaN(offset);
+
+  if (limitIsNotANumber && offsetIsANumber)
+    throw internalErrMsg(
+      'Offset is not allowed without limit',
+      HttpStatus.BAD_REQUEST,
+    );
+};

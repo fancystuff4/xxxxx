@@ -11,4 +11,7 @@ export class SubCategoryImage {
 
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.images)
   subCategory: SubCategory;
+
+  @Column()
+  subCategoryId: string;
 }

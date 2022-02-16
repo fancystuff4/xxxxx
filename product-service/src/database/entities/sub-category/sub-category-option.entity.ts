@@ -14,7 +14,7 @@ export enum OptionType {
 }
 
 @Entity()
-@Index(['optionName', 'subCategory'], { unique: true })
+@Index(['optionName', 'subCategoryId'], { unique: true })
 export class SubCategoryOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,6 +34,12 @@ export class SubCategoryOption {
   })
   optionType: OptionType;
 
+  @Column({ default: true })
+  active: boolean;
+
   @ManyToOne(() => SubCategory, (subCategory) => subCategory.id)
   subCategory: SubCategory;
+
+  @Column()
+  subCategoryId: string;
 }

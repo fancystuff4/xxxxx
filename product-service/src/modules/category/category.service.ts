@@ -2,23 +2,21 @@ import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category, CategoryImage } from 'src/database/entities';
 import { PaginationDto } from 'src/helpers/common-dtos';
-import { objType, ValidateInterface } from 'src/helpers/constants';
-import { internalErrMsg, throwError, _isEmpty } from 'src/helpers/methods';
+import {
+  objType,
+  paginationOrIds,
+  ValidateInterface,
+} from 'src/helpers/constants';
+import {
+  ensureNoOffsetWithoutLimit,
+  internalErrMsg,
+  throwError,
+  _isEmpty,
+} from 'src/helpers/methods';
 import { FindOperator, In, Repository } from 'typeorm';
 import { CategoryCreateDto } from './dto';
 import { CategoryUpdateDto } from './dto/category';
 import { CategoryImageUpdateDto } from './dto/categoryImage';
-
-type paginationOrIds =
-  | {
-      take?: number;
-      skip?: number;
-      order: objType<string>;
-      relations: string[];
-    }
-  | {
-      id: FindOperator<any>;
-    };
 
 interface ValidateCategoriesAndReturnInterface extends ValidateInterface {
   categories: Category[];
@@ -71,14 +69,7 @@ export class CategoryService {
         });
       } else {
         // paginated categories
-        const limitIsNotANumber = isNaN(limit);
-        const offsetIsANumber = !isNaN(offset);
-
-        if (limitIsNotANumber && offsetIsANumber)
-          throw internalErrMsg(
-            'Offset is not allowed without limit',
-            HttpStatus.BAD_REQUEST,
-          );
+        ensureNoOffsetWithoutLimit(limit, offset);
 
         condition = {
           take: limit,
