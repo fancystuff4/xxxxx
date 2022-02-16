@@ -211,8 +211,45 @@ export class SubCategoryController {
   }
 
   // toggle active
+  @Put(':subCategoryId/options/:optionId/active')
+  async toggleActive(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Param('optionId', insertValidationPipe(PipeDataType.UUID))
+    optionId: string,
+    @Body('active', insertValidationPipe(PipeDataType.BOOLEAN))
+    newActiveStatus: boolean,
+    @Res() res: Response,
+  ): Promise<void> {
+    const updatedOption = await this.subCatService.toggleActiveOfOption(
+      category.id,
+      subCategoryId,
+      optionId,
+      newActiveStatus,
+    );
+
+    sendResponse(res, HttpStatus.OK, updatedOption);
+  }
 
   // delete option
+  @Delete(':subCategoryId/options/:optionId')
+  async deleteSubCategoryOption(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Param('optionId', insertValidationPipe(PipeDataType.UUID))
+    optionId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.subCatService.deleteSubCategoryOption(
+      category.id,
+      subCategoryId,
+      optionId,
+    );
+
+    sendResponse(res, HttpStatus.OK);
+  }
 
   // IMAGES
   // create image

@@ -387,7 +387,7 @@ export class SubCategoryService {
 
       const updatedOption = await this.subCatOptRepo.findOne({
         where: { id: subCategoryOptId, subCategoryId },
-        relations: ['subCategory'],
+        relations: ['subCategory', 'subCategory.category'],
       });
 
       return updatedOption;
@@ -396,6 +396,113 @@ export class SubCategoryService {
         message:
           'The sub-category already has an option with the provided name',
       });
+    }
+  }
+
+  async toggleActiveOfOption(
+    categoryId: string,
+    subCategoryId: string,
+    optionId: string,
+    newActiveStatus: boolean,
+  ): Promise<SubCategoryOption> {
+    try {
+      const {
+        isValid,
+        subCategories: [correspondingSubCategory],
+      } = await this.validateSubCategoriesAndReturn(
+        {
+          id: subCategoryId,
+          categoryId,
+        },
+        {
+          relations: ['options'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg(
+          'Invalid sub-category. Please check the sub-category and category id',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const correspondingOption = correspondingSubCategory.options.find(
+        (option) => option.id === optionId,
+      );
+
+      if (_isEmpty(correspondingOption))
+        throw internalErrMsg(
+          'Invalid option id for the provided sub-category id',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { affected } = await this.subCatOptRepo.update(
+        {
+          id: optionId,
+          subCategoryId,
+        },
+        {
+          active: newActiveStatus,
+        },
+      );
+
+      if (affected < 1) throw internalErrMsg();
+      const updatedOption = await this.subCatOptRepo.findOne({
+        where: {
+          id: optionId,
+          subCategoryId,
+        },
+        relations: ['subCategory', 'subCategory.category'],
+      });
+
+      return updatedOption;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async deleteSubCategoryOption(
+    categoryId: string,
+    subCategoryId: string,
+    optionId: string,
+  ): Promise<void> {
+    try {
+      const {
+        isValid,
+        subCategories: [correspondingSubCategory],
+      } = await this.validateSubCategoriesAndReturn(
+        {
+          id: subCategoryId,
+          categoryId,
+        },
+        {
+          relations: ['options'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg(
+          'Invalid sub-category. Please check the category and sub-category id properly.',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const correspondingOption = correspondingSubCategory.options?.find(
+        (option) => option.id === optionId,
+      );
+
+      if (!correspondingOption)
+        throw internalErrMsg(
+          'No such option is found for the provided sub-category.',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { affected } = await this.subCatOptRepo.delete({
+        id: optionId,
+        subCategoryId,
+      });
+
+      if (affected < 1) throw internalErrMsg();
+    } catch (error) {
+      throwError(error);
     }
   }
 
