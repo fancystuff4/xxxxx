@@ -37,7 +37,10 @@ export class SubCategoryOption {
   @Column({ default: true })
   active: boolean;
 
-  @ManyToOne(() => SubCategory, (subCategory) => subCategory.id)
+  @ManyToOne(() => SubCategory, (subCategory) => subCategory.options, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   subCategory: SubCategory;
 
   @Column()

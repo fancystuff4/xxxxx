@@ -93,7 +93,7 @@ export class CategoryService {
     try {
       const category = await this.categoryRepository.findOne({
         where: { id: categoryId },
-        relations: ['images', 'subCategories'],
+        relations: ['images', 'subCategories', 'subCategories.images'],
       });
 
       return category;

@@ -24,7 +24,7 @@ import {
   PipeDataType,
   sendResponse,
 } from 'src/helpers/methods';
-import { SubCatCreateDto, SubCatUpdateDto } from '../dto';
+import { SubCatCreateDto, SubCatImageCreateDto, SubCatUpdateDto } from '../dto';
 import {
   SubCatOptCreateDto,
   SubCatOptUpdateDto,
@@ -253,13 +253,78 @@ export class SubCategoryController {
 
   // IMAGES
   // create image
+  @Post(':subCategoryId/images')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async insertSubCategoryImage(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Body() body: SubCatImageCreateDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.subCatService.addSubCategoryImages(
+      category.id,
+      subCategoryId,
+      body.images,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
 
   // get image
+  @Get(':subCategoryId/images/:imageId')
+  async getSubCategoryImageById(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Param('imageId', insertValidationPipe(PipeDataType.UUID))
+    imageId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const image = await this.subCatService.getSubCategoryImageById(
+      category.id,
+      subCategoryId,
+      imageId,
+    );
+
+    sendResponse(res, HttpStatus.OK, image || EMPTY_OBJECT);
+  }
 
   // get images by sub-category id
+  @Get(':subCategoryId/images')
+  async getImagesBySubCategoryId(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.subCatService.getImagesBySubCatId(
+      category.id,
+      subCategoryId,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
 
   // edit image
   // @UsePipes(new ValidationPipe({ whitelist: true }))
 
   // delete image
+  @Delete(':subCategoryId/images/:imageId')
+  async deleteSubCategoryImageById(
+    @GetParameterFromRequest('category') category: Category,
+    @Param('subCategoryId', insertValidationPipe(PipeDataType.UUID))
+    subCategoryId: string,
+    @Param('imageId', insertValidationPipe(PipeDataType.UUID))
+    imageId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.subCatService.deleteSubCategoryImageById(
+      category.id,
+      subCategoryId,
+      imageId,
+    );
+
+    sendResponse(res, HttpStatus.OK);
+  }
 }
