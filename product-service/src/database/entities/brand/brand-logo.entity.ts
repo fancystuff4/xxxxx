@@ -31,7 +31,10 @@ export class BrandLogo {
   })
   sizeType: BrandLogoSize;
 
-  @ManyToOne(() => Brand, (brand) => brand.logos)
+  @ManyToOne(() => Brand, (brand) => brand.logos, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   brand: Brand;
 
   @Column()

@@ -5,3 +5,5 @@ export {
   SubCategoryImage,
   SubCategoryOption,
 } from './sub-category';
+export { Product, ProductImage, ProductOption } from './product';
+export { Variant, VariantImage, VariantOption } from './variant';

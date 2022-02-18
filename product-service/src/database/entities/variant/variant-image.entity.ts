@@ -1,20 +1,20 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
-import { Product } from '.';
+import { Variant } from '.';
 
 @Entity()
-export class ProductImage {
+export class VariantImage {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   @Column({ type: 'varchar', length: 500 })
   src: string;
 
-  @ManyToOne(() => Product, (product) => product.images, {
+  @ManyToOne(() => Variant, (variant) => variant.images, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
   })
-  product: Product;
+  variant: Variant;
 
   @Column()
-  productId: string;
+  variantId: string;
 }

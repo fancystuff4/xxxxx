@@ -13,6 +13,12 @@ import {
   SubCategoryImage,
   SubCategoryOption,
   SubCategory,
+  Product,
+  ProductImage,
+  ProductOption,
+  Variant,
+  VariantImage,
+  VariantOption,
 } from './database/entities';
 @Module({
   imports: [
@@ -34,6 +40,12 @@ import {
         SubCategory,
         SubCategoryImage,
         SubCategoryOption,
+        Product,
+        ProductImage,
+        ProductOption,
+        Variant,
+        VariantImage,
+        VariantOption,
       ],
       synchronize: true,
     }),

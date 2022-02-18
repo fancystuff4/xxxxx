@@ -9,7 +9,10 @@ export class CategoryImage {
   @Column({ type: 'varchar', length: 500 })
   src: string;
 
-  @ManyToOne(() => Category, (category) => category.images)
+  @ManyToOne(() => Category, (category) => category.images, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   category: Category;
 
   @Column()

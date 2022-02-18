@@ -20,11 +20,13 @@ import {
 } from 'src/helpers/methods';
 import { In, Repository } from 'typeorm';
 import { CategoryService } from '../category.service';
-import { SubCatCreateDto, SubCatUpdateDto } from '../dto';
 import {
-  SubCatOptCreateObj,
+  SubCatCreateDto,
+  SubCatUpdateDto,
+  SubCatImageCreateObj,
   SubCatOptUpdateDto,
-} from '../dto/subCategoryOption';
+  SubCatOptCreateObj,
+} from '../dto';
 
 interface ValidateSubCatsAndReturnInterface extends ValidateInterface {
   subCategories: SubCategory[];
@@ -502,6 +504,146 @@ export class SubCategoryService {
 
       if (affected < 1) throw internalErrMsg();
     } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async addSubCategoryImages(
+    categoryId: string,
+    subCategoryId: string,
+    images: SubCatImageCreateObj[],
+  ): Promise<SubCategoryImage[]> {
+    try {
+      const { isValid } = await this.validateSubCategoriesAndReturn({
+        id: subCategoryId,
+        categoryId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg('Invalid sub-category.', HttpStatus.BAD_REQUEST);
+
+      const newImages: SubCategoryImage[] = [];
+
+      images.forEach((inputImage) => {
+        let newImageObj = new SubCategoryImage();
+
+        newImageObj = { ...newImageObj, ...inputImage };
+        newImageObj.subCategoryId = subCategoryId;
+
+        newImages.push(newImageObj);
+      });
+
+      const insertedImages = await this.subCatImageRepo.save(newImages);
+
+      return insertedImages;
+    } catch (error) {
+      console.log('in insert', error);
+
+      throwError(error);
+    }
+  }
+
+  async getImagesBySubCatId(
+    categoryId: string,
+    subCategoryId: string,
+  ): Promise<SubCategoryImage[]> {
+    try {
+      const {
+        isValid,
+        subCategories: [correspondingSubCategory],
+      } = await this.validateSubCategoriesAndReturn(
+        {
+          id: subCategoryId,
+          categoryId,
+        },
+        {
+          relations: ['images', 'images.subCategory'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg('Invalid sub-category', HttpStatus.BAD_REQUEST);
+
+      return correspondingSubCategory.images;
+    } catch (error) {
+      console.log('in get images', error);
+      throwError(error);
+    }
+  }
+
+  async getSubCategoryImageById(
+    categoryId: string,
+    subCategoryId: string,
+    imageId: string,
+  ): Promise<SubCategoryImage> {
+    try {
+      const {
+        isValid,
+        subCategories: [correspondingSubCategory],
+      } = await this.validateSubCategoriesAndReturn(
+        {
+          id: subCategoryId,
+          categoryId,
+        },
+        {
+          relations: ['images', 'images.subCategory'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg('Invalid sub-category', HttpStatus.BAD_REQUEST);
+
+      const image = correspondingSubCategory.images.find(
+        (image) => image.id === imageId,
+      );
+
+      return image;
+    } catch (error) {
+      console.log('in get one image', error);
+      throwError(error);
+    }
+  }
+
+  async deleteSubCategoryImageById(
+    categoryId: string,
+    subCategoryId: string,
+    imageId: string,
+  ): Promise<void> {
+    try {
+      const {
+        isValid,
+        subCategories: [correspondingSubCategory],
+      } = await this.validateSubCategoriesAndReturn(
+        {
+          id: subCategoryId,
+          categoryId,
+        },
+        {
+          relations: ['images'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg('Invalid sub-category.', HttpStatus.BAD_REQUEST);
+
+      const image = correspondingSubCategory.images.find(
+        (image) => image.id === imageId,
+      );
+
+      if (!image)
+        throw internalErrMsg(
+          'No image is found with the provided id. Check the category, sub-category and image id',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { affected } = await this.subCatImageRepo.delete({
+        id: imageId,
+        subCategoryId,
+      });
+
+      if (affected < 1) throw internalErrMsg();
+    } catch (error) {
+      console.log('in delete image', error);
       throwError(error);
     }
   }

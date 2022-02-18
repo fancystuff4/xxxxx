@@ -7,6 +7,7 @@ import {
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Category } from '../category/category.entity';
+import { Product } from '../product';
 import { SubCategoryImage } from './sub-category-image.entity';
 import { SubCategoryOption } from './sub-category-option.entity';
 
@@ -22,7 +23,10 @@ export class SubCategory {
   @Column({ default: false })
   active: boolean;
 
-  @ManyToOne(() => Category, (category) => category.subCategories)
+  @ManyToOne(() => Category, (category) => category.subCategories, {
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE',
+  })
   category: Category;
 
   @OneToMany(() => SubCategoryImage, (image) => image.subCategory)
@@ -33,6 +37,9 @@ export class SubCategory {
     (subCategoryOption) => subCategoryOption.subCategory,
   )
   options: SubCategoryOption[];
+
+  @OneToMany(() => Product, (product) => product.subCategory)
+  products: Product[];
 
   @Column()
   categoryId: string;
