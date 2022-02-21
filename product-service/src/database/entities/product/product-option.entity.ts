@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import { Product } from '.';
 import { SubCategoryOption } from '..';
 
 @Entity()
+@Index(['productId', 'subCatOptionId'], { unique: true })
 export class ProductOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -27,15 +29,14 @@ export class ProductOption {
   })
   product: Product;
 
-  @ManyToOne(() => SubCategoryOption, undefined, {
+  @ManyToOne(() => SubCategoryOption, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    nullable: true,
   })
   @JoinColumn({ referencedColumnName: 'id' })
   subCatOption: SubCategoryOption;
 
-  @Column({ nullable: true })
+  @Column()
   subCatOptionId: string;
 
   @Column()

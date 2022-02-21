@@ -1,6 +1,7 @@
 import {
   Column,
   Entity,
+  Index,
   JoinColumn,
   ManyToOne,
   PrimaryGeneratedColumn,
@@ -9,6 +10,7 @@ import { Variant } from '.';
 import { SubCategoryOption } from '..';
 
 @Entity()
+@Index(['subCatOptionId', 'variant'], { unique: true })
 export class VariantOption {
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -29,13 +31,9 @@ export class VariantOption {
   @ManyToOne(() => Variant, (variant) => variant.options, {
     onDelete: 'CASCADE',
     onUpdate: 'CASCADE',
-    nullable: true,
   })
   variant: Variant;
 
-  @Column({ nullable: true })
-  subCatOptionId: string;
-
   @Column()
-  variantId: string;
+  subCatOptionId: string;
 }
