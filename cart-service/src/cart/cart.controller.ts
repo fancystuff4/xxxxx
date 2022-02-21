@@ -13,20 +13,20 @@ export class CartController {
     async addToCart(@Body() cartDto: CartDto, @Res() res: Response, @Req() req: Request) {
         const auth: boolean = true;
         if(auth){ // when the user is logged in
-            const sessionUserId: string = 'user-1';
+            const sessionUserId: string = 'user-2';
             try {
                 const userCart = await this.cartService.findUserCart(sessionUserId);
                 if(!userCart){ // when the logged in user has no existing cart
                     const newCart: any = await this.cartService.insertIntoCart(cartDto, sessionUserId);
                     if (newCart.ok) {
                         return res.status(HttpStatus.CREATED).json({
-                            ok: true,
+                            statusCode: HttpStatus.CREATED,
                             message: 'Add to Cart: A new cart has been created.',
                             data: newCart.data,
                         });
                     } else {
                         return res.status(HttpStatus.BAD_REQUEST).json({
-                            ok: false,
+                            statusCode: HttpStatus.BAD_REQUEST,
                             message: 'Add to Cart: Error Trying to Create Cart',
                         });
                     }
@@ -37,27 +37,27 @@ export class CartController {
                         updatedCart = await this.cartService.updateItemInCart(cartDto, userCart.id, userCart.items);
                         if (updatedCart.ok) {
                             return res.status(HttpStatus.OK).json({
-                                ok: true,
+                                statusCode: HttpStatus.OK,
                                 message: 'Add to Cart: An existing item has been modified.',
                                 data: updatedCart.data,
                             });
                         } else {
                             return res.status(HttpStatus.BAD_REQUEST).json({
-                                ok: false,
-                                message: 'Error Trying to Update Cart',
+                                statusCode: HttpStatus.BAD_REQUEST,
+                                message: 'Add to Cart: Error Trying to Update Cart',
                             });
                         }
                     } else { // when the item doesn't exist in his cart
                         updatedCart = await this.cartService.insertIntoCartItems(cartDto, userCart.id);
                         if (updatedCart.ok) {
                             return res.status(HttpStatus.OK).json({
-                                ok: true,
+                                statusCode: HttpStatus.OK,
                                 message: 'Add to Cart: A new item has been added.',
                                 data: updatedCart.data,
                             });
                         } else {
                             return res.status(HttpStatus.BAD_REQUEST).json({
-                                ok: false,
+                                statusCode: HttpStatus.BAD_REQUEST,
                                 message: 'Add to Cart: Error Trying to Update Cart',
                             });
                         }
@@ -65,8 +65,8 @@ export class CartController {
                 }
             } catch (error) {
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                    ok: false,
-                    message: 'Add to Cart: Error Trying to reach DB',
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: 'Add to Cart: Error Trying to reach Database',
                     errors: error,
                 });
             }
@@ -80,13 +80,13 @@ export class CartController {
                     });
                     if (anonymousCart.ok) {
                         return res.status(HttpStatus.CREATED).json({
-                            ok: true,
+                            statusCode: HttpStatus.CREATED,
                             message: 'Add to Anonymous Cart: An anonymous cart has been created.',
                             data: anonymousCart.data,
                         });
                     } else {
                         return res.status(HttpStatus.BAD_REQUEST).json({
-                            ok: false,
+                            statusCode: HttpStatus.BAD_REQUEST,
                             message: 'Add to Anonymous Cart: Error Trying to Create Anonymous Cart',
                         });
                     }
@@ -98,13 +98,13 @@ export class CartController {
                         updatedAnonymousCart = await this.cartService.updateItemInCart(cartDto, anonymousCart.id, anonymousCart.items);
                         if (updatedAnonymousCart.ok) {
                             return res.status(HttpStatus.OK).json({
-                                ok: true,
+                                statusCode: HttpStatus.OK,
                                 message: 'Add to Anonymous Cart: An existing item has been modified.',
                                 data: updatedAnonymousCart.data,
                             });
                         } else {
                             return res.status(HttpStatus.BAD_REQUEST).json({
-                                ok: false,
+                                statusCode: HttpStatus.BAD_REQUEST,
                                 message: 'Add to Anonymous Cart: Error Trying to Update Anonymous Cart',
                             });
                         }
@@ -112,13 +112,13 @@ export class CartController {
                         updatedAnonymousCart = await this.cartService.insertIntoCartItems(cartDto, anonymousCart.id);
                         if (updatedAnonymousCart.ok) {
                             return res.status(HttpStatus.OK).json({
-                                ok: true,
+                                statusCode: HttpStatus.OK,
                                 message: 'Add to Anonymous Cart: A new item has been added.',
                                 data: updatedAnonymousCart.data,
                             });
                         } else {
                             return res.status(HttpStatus.BAD_REQUEST).json({
-                                ok: false,
+                                statusCode: HttpStatus.BAD_REQUEST,
                                 message: 'Add to Anonymous Cart: Error Trying to Update Anonymous Cart',
                             });
                         }
@@ -126,8 +126,8 @@ export class CartController {
                 }
             } catch (error) {
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                    ok: false,
-                    message: 'Add to Anonymous Cart: Error Trying to reach DB',
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: 'Add to Anonymous Cart: Error Trying to reach Database',
                     errors: error,
                 });
             }
@@ -140,17 +140,19 @@ export class CartController {
             const userCart: any = await this.cartService.findUserCart(id);
             if (userCart) {
                 return res.status(HttpStatus.OK).json({
+                    statusCode: HttpStatus.OK,
                     cart: userCart,
                 });
             } else {
                 return res.status(HttpStatus.OK).json({
+                    statusCode: HttpStatus.OK,
                     message: `Get User Cart: The user with id '${id}' has no existing cart`,
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                ok: false,
-                message: 'Get User Cart: Error Trying to reach DB',
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Get User Cart: Error Trying to reach Database',
                 errors: error,
             });
         }
@@ -171,31 +173,32 @@ export class CartController {
                     const modifiedUserCart = await this.cartService.modifyItemInUserCart(userCart.id, userCart.items, lineItemID, updateCartDto.quantity);
                     if (modifiedUserCart.ok) {
                         return res.status(HttpStatus.OK).json({
-                            ok: true,
+                            statusCode: HttpStatus.OK,
                             message: 'Update Cart: an existing item has been modified.',
                             data: modifiedUserCart.data,
                         });
                     } else {
                         return res.status(HttpStatus.BAD_REQUEST).json({
-                            ok: false,
+                            statusCode: HttpStatus.BAD_REQUEST,
                             message: `Update Cart: the item doesn't exist in user's cart`,
                         });
                     }
                 } else {
                     return res.status(HttpStatus.BAD_REQUEST).json({
+                        statusCode: HttpStatus.BAD_REQUEST,
                         message: `Update Cart: The user with id '${userID}' has no existing cart with id '${cartID}'`,
                     });
                 }
             } catch (error) {
                 return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                    ok: false,
-                    message: 'Update Cart: Error Trying to reach DB',
+                    statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                    message: 'Update Cart: Error Trying to reach Database',
                     errors: error,
                 });
             }
         } else {
             return res.status(HttpStatus.BAD_REQUEST).json({
-                ok: false,
+                statusCode: HttpStatus.BAD_REQUEST,
                 message: 'Update Cart: Please specify the quantity of the item correctly',
             });
         }
@@ -218,24 +221,26 @@ export class CartController {
                         await this.cartService.deleteCart(userCart.id);
                     }
                     return res.status(HttpStatus.OK).json({
-                        ok: true,
-                        message: `Remove Item from Cart: An existing item has been removed from user's cart.`
+                        statusCode: HttpStatus.OK,
+                        message: `Remove Item from Cart: An existing item has been removed from user's cart.`,
+                        data: result.data
                     });
                 } else {
                     return res.status(HttpStatus.BAD_REQUEST).json({
-                        ok: false,
+                        statusCode: HttpStatus.BAD_REQUEST,
                         message: `Remove Item from Cart: The item doesn't exist in user's cart.`,
                     });
                 }
             } else {
                 return res.status(HttpStatus.BAD_REQUEST).json({
+                    statusCode: HttpStatus.BAD_REQUEST,
                     message: `Remove Item from Cart: The user with id '${userID}' has no existing cart with id '${cartID}'`,
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
-                ok: false,
-                message: 'Remove Item from Cart: Error Trying to reach DB',
+                statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+                message: 'Remove Item from Cart: Error Trying to reach Database',
                 errors: error,
             });
         }

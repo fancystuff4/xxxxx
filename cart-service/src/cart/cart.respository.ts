@@ -59,7 +59,7 @@ export class CartRepository {
         }
         try {
             await client.update(params).promise();
-            return { ok: true, data: cartDto };
+            return { ok: true, data: lineItem };
 
         } catch (error) {
             throw new InternalServerErrorException(error);
@@ -176,9 +176,11 @@ export class CartRepository {
 
     async removeItemFromUserCart(cartID: string, cartItems: any[], lineItemID: string) {
         let index: number = null;
+        let itemToBeRemoved: any;
         for(var i in cartItems) {
             if(cartItems[i].lineItemID === lineItemID){
                 index = parseInt(i);
+                itemToBeRemoved = cartItems[i];
             }
         }
         if(index === null){
@@ -198,7 +200,7 @@ export class CartRepository {
         }
         try {
             await client.update(params).promise();
-            return { ok: true };
+            return { ok: true, data: itemToBeRemoved };
 
         } catch (error) {
             throw new InternalServerErrorException(error);
