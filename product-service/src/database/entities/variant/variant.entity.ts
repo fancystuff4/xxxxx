@@ -18,7 +18,7 @@ export class Variant {
   @Column()
   name: string;
 
-  @Column()
+  @Column({ default: 0 })
   price: number;
 
   @Column({ default: false })
@@ -33,7 +33,7 @@ export class Variant {
   @OneToMany(() => VariantImage, (image) => image.variantId)
   images: VariantImage[];
 
-  @OneToMany(() => VariantOption, (variantOption) => variantOption.variantId)
+  @OneToMany(() => VariantOption, (variantOption) => variantOption.variant)
   options: VariantOption[];
 
   @Column()

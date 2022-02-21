@@ -28,13 +28,15 @@ export class Product {
   })
   subCategory: SubCategory;
 
-  @OneToMany(() => ProductImage, (image) => image.productId)
+  @OneToMany(() => ProductImage, (image) => image.product)
   images: ProductImage[];
 
-  @OneToMany(() => Variant, (variant) => variant.productId)
+  @OneToMany(() => Variant, (variant) => variant.product, {
+    cascade: ['insert'],
+  })
   variants: Variant[];
 
-  @OneToMany(() => ProductOption, (productOption) => productOption.productId)
+  @OneToMany(() => ProductOption, (productOption) => productOption.product)
   options: ProductOption[];
 
   @Column()
