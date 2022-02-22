@@ -17,6 +17,7 @@ import {
 } from 'src/helpers/methods';
 import { In, Repository } from 'typeorm';
 import { ProductAndOptionCreateDto, ProductUpdateDto } from './dto';
+import { ProductImageCreateObj } from './dto/productImage';
 import { VariantService } from './variant/variant.service';
 
 interface validateProductsAndReturnInterface extends ValidateInterface {
@@ -236,6 +237,109 @@ export class ProductService {
         id: productId,
         subCategoryId,
       });
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  ///////////////// PRODUCT IMAGE /////////////////////
+
+  async addProductImages(
+    subCategoryId: string,
+    productId: string,
+    images: ProductImageCreateObj[],
+  ): Promise<ProductImage[]> {
+    try {
+      const { isValid } = await this.validateProductsAndReturn({
+        id: productId,
+        subCategoryId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg('Invalid product', HttpStatus.BAD_REQUEST);
+
+      const newImages: ProductImage[] = [];
+
+      images.forEach((image) => {
+        let newImage = new ProductImage();
+        newImage = { ...newImage, ...image };
+        newImage.productId = productId;
+        newImages.push(newImage);
+      });
+
+      const insertedImages = await this.productImageRepository.save(newImages);
+
+      return insertedImages;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async getImagesByProductId(
+    subCategoryId: string,
+    productId: string,
+  ): Promise<ProductImage[]> {
+    try {
+      const {
+        isValid,
+        products: [correspondingProduct],
+      } = await this.validateProductsAndReturn(
+        {
+          id: productId,
+          subCategoryId,
+        },
+        {
+          relations: ['images'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg(
+          'Invalid product. Check the product id and the sub-category id.',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      return correspondingProduct.images;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async getProductImageById(
+    subCategoryId: string,
+    productId: string,
+    imageId: string,
+  ): Promise<ProductImage> {
+    const images = await this.getImagesByProductId(subCategoryId, productId);
+
+    const requiredImage = images.find((image) => image.id === imageId);
+
+    return requiredImage;
+  }
+
+  async deleteProductImageById(
+    subCategoryId: string,
+    productId: string,
+    imageId: string,
+  ): Promise<void> {
+    const image = await this.getProductImageById(
+      subCategoryId,
+      productId,
+      imageId,
+    );
+
+    try {
+      if (_isEmpty(image))
+        throw internalErrMsg(
+          'Invalid image. Please check the image, product and sub-category id',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { affected } = await this.productImageRepository.delete({
+        id: imageId,
+      });
+
+      if (affected < 1) throw internalErrMsg();
     } catch (error) {
       throwError(error);
     }

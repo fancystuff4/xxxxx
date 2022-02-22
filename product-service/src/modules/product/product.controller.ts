@@ -11,6 +11,8 @@ import {
   Query,
   Res,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
 import { SubCategory } from 'src/database/entities';
@@ -24,6 +26,7 @@ import {
   sendResponse,
 } from 'src/helpers/methods';
 import { ProductAndOptionCreateDto } from './dto';
+import { ProductImageCreateDto } from './dto/productImage';
 import { ProductService } from './product.service';
 
 @Controller('subCategories/:subCategoryId/products')
@@ -116,7 +119,73 @@ export class ProductController {
   // delete product option
   ////////////////////// IMAGES ///////////////////////
   // create product image
+  @Post(':productId/images')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  async addProductImages(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Body() body: ProductImageCreateDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.productService.addProductImages(
+      subCategory.id,
+      productId,
+      body.images,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
   // get product images by product id
+  @Get(':productId/images')
+  async getImagesByProductId(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.productService.getImagesByProductId(
+      subCategory.id,
+      productId,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
   // get product image by image id
+  @Get(':productId/images/:imageId')
+  async getProductImageById(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Param('imageId', insertValidationPipe(PipeDataType.UUID))
+    imageId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const image = await this.productService.getProductImageById(
+      subCategory.id,
+      productId,
+      imageId,
+    );
+
+    sendResponse(res, HttpStatus.OK, image || EMPTY_OBJECT);
+  }
+
   // delete product image
+  @Delete(':productId/images/:imageId')
+  async deleteProductImageById(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Param('imageId', insertValidationPipe(PipeDataType.UUID))
+    imageId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.productService.deleteProductImageById(
+      subCategory.id,
+      productId,
+      imageId,
+    );
+
+    sendResponse(res, HttpStatus.OK);
+  }
 }
