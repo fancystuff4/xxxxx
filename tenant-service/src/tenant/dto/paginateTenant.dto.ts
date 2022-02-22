@@ -1,6 +1,6 @@
 import { IsOptional } from 'class-validator';
 
-export class paginateTenantDto {
+export class PaginateTenantDto {
     @IsOptional()
     lastItem: string;
 }

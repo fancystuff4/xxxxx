@@ -1,4 +1,4 @@
-import { IsArray, IsNotEmpty,IsEmail } from 'class-validator';
+import {  IsNotEmpty,IsEmail } from 'class-validator';
 
 export class CreateTenantDto {
     @IsNotEmpty()
@@ -28,12 +28,4 @@ export class CreateTenantDto {
 
     @IsNotEmpty()
     status: boolean;
-}
-export class CreatePaymentDto {
-    @IsNotEmpty()
-    paymentService: string;
-
-    
-
-    
 }

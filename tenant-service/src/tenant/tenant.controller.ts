@@ -1,22 +1,27 @@
 import { Body, Controller, Delete, Query,Get,HttpStatus, Param, Post, Put, Res } from '@nestjs/common';
 import { Roles } from './decorators/roles.decorator';
 // import { Tenant } from './tenant.entity';
-import { CreateTenantDto ,CreatePaymentDto} from './dto/createTenant.dto';
-import { paginateTenantDto} from './dto/paginateTenant.dto';
-import { updateTenantDto} from './dto/updateTenant.dto';
+import { CreateTenantDto } from './dto/createTenant.dto';
+import { GetUserDto} from './dto/getUser.dto';
+import { PaymentServiceDto} from './dto/paymentService.dto';
+import { ServiceNameDto} from './dto/serviceName.dto';
+import { PaginateTenantDto} from './dto/paginateTenant.dto';
+import { UpdateTenantDto} from './dto/updateTenant.dto';
+import { AddPaymentServiceDto} from './dto/addPaymentService.dto';
+import { EditPaymentServiceDto} from './dto/editPaymentService.dto';
+import { AddPaymentCredentialsDto} from './dto/addPaymentCredentials.dto';
 import { UpdateUserStatus } from './dto/updateUserStatus.dto';
 import { GetTenantDto } from './dto/getTenant.dto';
 import { Role } from './roles.enum';
 import { TenantService } from './tenant.service';
-
-@Controller('tenants')
+@Controller()
 export class TenantController {
 
     constructor(private tenantService: TenantService){}
 
     @Roles(Role.SUPERADMIN)
-    @Get('all/:lastItem?')
-    async getAllTenants(@Res() res: any,@Query() paginateTenantDto:paginateTenantDto){
+    @Get('tenants/all/:lastItem?')
+    async getAllTenants(@Res() res: any,@Query() paginateTenantDto:PaginateTenantDto){
         try {
             const tenant: any = await this.tenantService.getAllTenant(paginateTenantDto);
             if (tenant.ok) {
@@ -40,7 +45,7 @@ export class TenantController {
         }
     }
 
-    @Post()
+    @Post('tenants')
     async createTenant(@Body() createTenantDto: CreateTenantDto, @Res() res: any){
         try {
             const newTenant: any = await this.tenantService.createTenant(createTenantDto);
@@ -64,7 +69,7 @@ export class TenantController {
         }
     }
 
-    @Get(':tenantId')
+    @Get('tenants/:tenantId')
     async getOne(@Param() getTenantDto: GetTenantDto, @Res() res: any){
         try {
             const tenant: any = await this.tenantService.getTenantById(getTenantDto);
@@ -88,10 +93,10 @@ export class TenantController {
         }
     }
 
-    @Put(':tenant_id')
-    async updateTenant(@Param('tenant_id') tenant_id: string,@Body() updateTenantDto: updateTenantDto, @Res() res: any){
+    @Put('tenants/:tenantId')
+    async updateTenant(@Param() getTenantDto: GetTenantDto,@Body() updateTenantDto: UpdateTenantDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.updateTenant(tenant_id,updateTenantDto);
+            const tenant: any = await this.tenantService.updateTenant(getTenantDto,updateTenantDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -114,10 +119,10 @@ export class TenantController {
         }
     }
 
-    @Delete(":tenant_id")
-    async deleteTenant(@Param('tenant_id') tenant_id: string, @Res() res: any){
+    @Delete("tenants/:tenantId")
+    async deleteTenant(@Param() getTenantDto: GetTenantDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.deleteTenant(tenant_id);
+            const tenant: any = await this.tenantService.deleteTenant(getTenantDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.NO_CONTENT).json({
                     ok: true
@@ -137,19 +142,19 @@ export class TenantController {
         }
     }
 
-    @Post('/:tenant_id/payments/services')
-    async addPaymentService(@Param('tenant_id') tenant_id: string,@Body() createPaymentDto: CreatePaymentDto, @Res() res: any){
+    @Post('superadmin/:superAdminId/payments')
+    async addPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Body() addPaymentServiceDto: AddPaymentServiceDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.addPaymentService(tenant_id,createPaymentDto);
+            const tenant: any = await this.tenantService.addPaymentService(paymentServiceDto,addPaymentServiceDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
                     tenant: tenant.data,
                 });
             } else {
-                return res.status(HttpStatus.BAD_REQUEST).json({
+                return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: 'Error Trying to Get Tenant',
+                    message: tenant.message,
                 });
             }
         } catch (error) {
@@ -161,10 +166,34 @@ export class TenantController {
         }
     }
 
-    @Post('/:tenant_id/payments')
-    async addPaymentCredentials(@Param('tenant_id') tenant_id: string,@Body() createPaymentDto: CreatePaymentDto, @Res() res: any){
+    @Put('superadmin/:superAdminId/payments/:serviceName')
+    async editPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Param() serviceNameDto: ServiceNameDto,@Body() editPaymentServiceDto: EditPaymentServiceDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.addPaymentCredentials(tenant_id,createPaymentDto);
+            const tenant: any = await this.tenantService.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
+            if (tenant.ok) {
+                return res.status(HttpStatus.OK).json({
+                    ok: true,
+                    tenant: tenant.data,
+                });
+            } else {
+                return res.status(HttpStatus.NOT_FOUND).json({
+                    ok: false,
+                    message: tenant.message,
+                });
+            }
+        } catch (error) {
+            return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+                ok: false,
+                message: 'Error Trying to reach DB',
+                errors: error,
+            });
+        }
+    }
+
+    @Post('/superadmin/:superAdminId/tenant/:tenantId/payments')
+    async addPaymentCredentials(@Param() paymentServiceDto: PaymentServiceDto,@Param() getTenantDto: GetTenantDto,@Body() addPaymentCredentialsDto: AddPaymentCredentialsDto, @Res() res: any){
+        try {
+            const tenant: any = await this.tenantService.addPaymentCredentials(paymentServiceDto,getTenantDto,addPaymentCredentialsDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -186,10 +215,10 @@ export class TenantController {
         }
     }
     
-    @Delete('/:tenant_id/payments/:payment_service')
-    async removePaymentCredentials(@Param('tenant_id') tenant_id: string,@Param('payment_service') payment_service: string, @Res() res: any){
+    @Delete('tenants/:tenantId/payments/:serviceName')
+    async removePaymentCredentials(@Param() getTenantDto: GetTenantDto,@Param() serviceNameDto: ServiceNameDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.removePaymentCredentials(tenant_id,payment_service);
+            const tenant: any = await this.tenantService.removePaymentCredentials(getTenantDto,serviceNameDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -210,10 +239,10 @@ export class TenantController {
         }
     }
 
-    @Get(':tenant_id/users/')
-    async getAllUsers(@Param('tenant_id') tenant_id: string,@Res() res: any){
+    @Get('tenants/:tenantId/users/')
+    async getAllUsers(@Param() getTenantDto: GetTenantDto,@Res() res: any){
         try {
-            const users: any = await this.tenantService.getAllUsers(tenant_id);
+            const users: any = await this.tenantService.getAllUsers(getTenantDto);
             if (users.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -234,10 +263,10 @@ export class TenantController {
         }
     }
 
-    @Get(':tenant_id/users/:user_id')
-    async getUserById(@Param('tenant_id') tenant_id: string,@Param('user_id') user_id: string,@Res() res: any){
+    @Get('tenants/:tenantId/users/:user_id')
+    async getUserById(@Param() getTenantDto: GetTenantDto,@Param() getUserDto: GetUserDto,@Res() res: any){
         try {
-            const user: any = await this.tenantService.getUserById(tenant_id,user_id);
+            const user: any = await this.tenantService.getUserById(getTenantDto,getUserDto);
             if (user.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -258,10 +287,10 @@ export class TenantController {
         }
     }
 
-    @Put(':tenant_id/users/:user_id/status/')
-    async updateUserStatus(@Param('tenant_id') tenant_id: string,@Param('user_id') user_id: string,@Body() updateUserStatus: UpdateUserStatus, @Res() res: any){
+    @Put('tenants/:tenantId/users/:user_id/status/')
+    async updateUserStatus(@Param() getTenantDto: GetTenantDto,@Param() getUserDto: GetUserDto,@Body() updateUserStatus: UpdateUserStatus, @Res() res: any){
         try {
-            const user: any = await this.tenantService.updateUserStatus(tenant_id,user_id,updateUserStatus);
+            const user: any = await this.tenantService.updateUserStatus(getTenantDto,getUserDto,updateUserStatus);
             if (user.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
@@ -282,10 +311,11 @@ export class TenantController {
             });
         }
     }
-    @Put(':tenant_id/status')
-    async updateTenantStatus(@Param('tenant_id') tenant_id: string,@Body() updateUserStatus: UpdateUserStatus, @Res() res: any){
+
+    @Put('tenants/:tenantId/status')
+    async updateTenantStatus(@Param() getTenantDto: GetTenantDto,@Body() updateUserStatus: UpdateUserStatus, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.updateTenantStatus(tenant_id,updateUserStatus);
+            const tenant: any = await this.tenantService.updateTenantStatus(getTenantDto,updateUserStatus);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,

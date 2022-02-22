@@ -23,40 +23,44 @@ export class TenantService {
         return this.tenantRepository.getTenantById(getTenantDto);
     }
 
-    async updateTenant(tenant_id: string, data){
-        return this.tenantRepository.updateTenant(tenant_id,data);
+    async updateTenant(getTenantDto, data){
+        return this.tenantRepository.updateTenant(getTenantDto,data);
     }
 
-    async addPaymentCredentials(tenant_id: string, data){
-        return this.tenantRepository.addPaymentCredentials(tenant_id,data);
+    async addPaymentCredentials(paymentServiceDto,getTenantDto, addPaymentCredentialsDto){
+        return this.tenantRepository.addPaymentCredentials(paymentServiceDto,getTenantDto,addPaymentCredentialsDto);
     }
 
-    async addPaymentService(tenant_id: string, data){
-        return this.tenantRepository.addPaymentService(tenant_id,data);
+    async addPaymentService(paymentServiceDto, addPaymentServiceDto){
+        return this.tenantRepository.addPaymentService(paymentServiceDto,addPaymentServiceDto);
+    }
+
+    async editPaymentService(paymentServiceDto, serviceNameDto,editPaymentServiceDto){
+        return this.tenantRepository.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
     }
 
     
-    async removePaymentCredentials(tenant_id: string, paymenService:string){
-        return this.tenantRepository.removePaymentCredentials(tenant_id,paymenService);
+    async removePaymentCredentials(getTenantDto, serviceNameDto){
+        return this.tenantRepository.removePaymentCredentials(getTenantDto,serviceNameDto);
     }
 
-    async getAllUsers(tenant_id: string){
-        return this.tenantRepository.getUsers(tenant_id);
+    async getAllUsers(getTenantDto){
+        return this.tenantRepository.getUsers(getTenantDto);
     }
 
-    async getUserById(tenant_id: string,user_id: string){
-        return this.tenantRepository.getUserById(tenant_id,user_id);
+    async getUserById(getTenantDto,getUserDto){
+        return this.tenantRepository.getUserById(getTenantDto,getUserDto);
     }
     
-    async updateUserStatus(tenant_id: string,user_id: string,data){
-        return this.tenantRepository.updateUserStatus(tenant_id,user_id,data);
+    async updateUserStatus(getTenantDto,getUserDto,data){
+        return this.tenantRepository.updateUserStatus(getTenantDto,getUserDto,data);
     }
     
-    async updateTenantStatus(tenant_id: string,data){
-        return this.tenantRepository.updateTenantStatus(tenant_id,data);
+    async updateTenantStatus(getTenantDto,data){
+        return this.tenantRepository.updateTenantStatus(getTenantDto,data);
     }
 
-    async deleteTenant(tenant_id: string){
-        return this.tenantRepository.deleteTenant(tenant_id);
+    async deleteTenant(getTenantDto){
+        return this.tenantRepository.deleteTenant(getTenantDto);
     }
 }

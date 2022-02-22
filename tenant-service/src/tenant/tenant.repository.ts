@@ -1,80 +1,89 @@
 import { CreateTenantDto } from './dto/createTenant.dto';
-import { updateTenantDto } from './dto/updateTenant.dto';
+import { UpdateTenantDto } from './dto/updateTenant.dto';
+import { AddPaymentServiceDto } from './dto/addPaymentService.dto';
+import { PaymentServiceDto } from './dto/paymentService.dto';
+import { PaginateTenantDto } from './dto/paginateTenant.dto';
+import { AddPaymentCredentialsDto } from './dto/addPaymentCredentials.dto';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import client from '../db/client';
+import { v4 as uuid } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { GetTenantDto } from './dto/getTenant.dto';
+import console from 'console';
+import { EditPaymentServiceDto } from './dto/editPaymentService.dto';
+import { ServiceNameDto } from './dto/serviceName.dto';
+import { GetUserDto } from './dto/getUser.dto';
 
 export class TenantRepository {
-    constructor() {}
+    constructor() { }
 
     async createTenant(CreateTenantDto: CreateTenantDto) {
         const saltOrRounds = 10;
-        const password =  CreateTenantDto.password;
+        const password = CreateTenantDto.password;
         const hashed = await bcrypt.hash(password, saltOrRounds);
 
-        const address ={
-            city:CreateTenantDto.city,
-            state:CreateTenantDto.state,
-            country:CreateTenantDto.country,
-            pin:CreateTenantDto.pin,
+        const address = {
+            city: CreateTenantDto.city,
+            state: CreateTenantDto.state,
+            country: CreateTenantDto.country,
+            pin: CreateTenantDto.pin,
 
         }
 
-        
+
         const newTenant = {
             PK: `TENANT${CreateTenantDto.username}`,
-            SK:`TENANT${CreateTenantDto.username}`,
-            fullname:CreateTenantDto.fullname,
+            SK: `TENANT${CreateTenantDto.username}`,
+            fullname: CreateTenantDto.fullname,
             username: CreateTenantDto.username,
             password: hashed,
-            address:address,
+            address: address,
             status: CreateTenantDto.status,
-            paymentdata:{},
+            paymentdata: {},
             role: 'Tenant'
         }
-        
+
 
         try {
             await client
                 .transactWrite({
-                    TransactItems:[{
-                        Put:{
+                    TransactItems: [{
+                        Put: {
                             Item: newTenant,
                             TableName: 'tenant',
-                            ConditionExpression:'attribute_not_exists(PK)'
+                            ConditionExpression: 'attribute_not_exists(PK)'
                         },
 
                     }]
-                    
-                    
+
+
                 })
                 .promise();
         } catch (error) {
-            if(error.code==='TransactionCanceledException'){
-               error='Tenant With This Username Already Exists';
+            if (error.code === 'TransactionCanceledException') {
+                error = 'Tenant With This Username Already Exists';
             }
             throw new InternalServerErrorException(error);
-           
-            
+
+
         }
 
         return { ok: true, data: newTenant };
     }
 
-    async getTenantById(getTenantDto:GetTenantDto) {
+    async getTenantById(getTenantDto: GetTenantDto) {
         let tenant;
         try {
             const result = await client.query({
                 TableName: 'tenant',
-                KeyConditionExpression:"#tenant_id=:tenantId",
+                KeyConditionExpression: "#tenant_id=:tenantId",
                 ExpressionAttributeValues: {
                     ":tenantId": getTenantDto.tenantId
-                   }, 
-                   ExpressionAttributeNames: {
-                    "#tenant_id":"PK",
-                  },
-                })
+                },
+                ExpressionAttributeNames: {
+                    "#tenant_id": "PK",
+                },
+            })
                 .promise();
 
             tenant = result.Items;
@@ -89,33 +98,33 @@ export class TenantRepository {
         return { ok: true, data: tenant };
     }
 
-    async getTenants(paginateTenantDto) {
+    async getTenants(paginateTenantDto:PaginateTenantDto) {
         let tenants;
         let lastItemKey;
         try {
-            const params={ 
+            const params = {
                 TableName: 'tenant',
                 FilterExpression: "#roles = :a",
                 ExpressionAttributeValues: {
                     ":a": "Tenant"
-                }, 
+                },
                 ExpressionAttributeNames: {
                     "#roles": "role"
                 },
                 Limit: 15,
-                     
+
             };
-            if(paginateTenantDto.lastItem){
-                params['ExclusiveStartKey']={ 'PK': paginateTenantDto.lastItem,'SK':paginateTenantDto.lastItem}
+            if (paginateTenantDto.lastItem) {
+                params['ExclusiveStartKey'] = { 'PK': paginateTenantDto.lastItem, 'SK': paginateTenantDto.lastItem }
             }
             const result = await client
                 .scan(params)
                 .promise();
 
             tenants = result.Items;
-            lastItemKey= result.LastEvaluatedKey;
+            lastItemKey = result.LastEvaluatedKey;
         } catch (error) {
-            if(error){
+            if (error) {
                 throw new InternalServerErrorException(error);
             }
         }
@@ -124,92 +133,94 @@ export class TenantRepository {
             throw new NotFoundException(`Tenants not found`);
         }
 
-        return { ok: true, data: tenants,lastItem:lastItemKey };
+        return { ok: true, data: tenants, lastItem: lastItemKey };
     }
 
-    async updateTenant(tenant_id,updateTenantDto: updateTenantDto) {
+    async updateTenant(getTenantDto: GetTenantDto, updateTenantDto: UpdateTenantDto) {
         let result;
 
         try {
-            const updateAddress ={
-                city:updateTenantDto.city,
-                state:updateTenantDto.state,
-                country:updateTenantDto.country,
-                pin:updateTenantDto.pin,
-    
+            const updateAddress = {
+                city: updateTenantDto.city,
+                state: updateTenantDto.state,
+                country: updateTenantDto.country,
+                pin: updateTenantDto.pin,
+
             }
             result = await client
                 .update({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':tenant_id },
-                    UpdateExpression: "set #fullname = :n, #address = :address",
-                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
+                    UpdateExpression: "set #fullname = :n, #address = :address,#status=:status",
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
                     ExpressionAttributeValues: {
                         ":n": `${updateTenantDto.fullname}`,
-                        ":address": updateAddress
+                        ":address": updateAddress,
+                        ":status": updateTenantDto.status
                     },
-                    ExpressionAttributeNames:{
+                    ExpressionAttributeNames: {
                         "#fullname": "fullname",
-                        "#address": "address"
-                      },
-                      ReturnValues:"ALL_NEW"
+                        "#address": "address",
+                        "#status":"status"
+                    },
+                    ReturnValues: "ALL_NEW"
                 })
                 .promise();
 
         } catch (error) {
-            if(error.code==='ConditionalCheckFailedException'){
-                error='TenantId Not Found';
-                return {ok:false,error:error}
-            }else{
+            if (error.code === 'ConditionalCheckFailedException') {
+                error = 'TenantId Not Found';
+                return { ok: false, error: error }
+            } else {
                 throw new InternalServerErrorException(error);
             }
         }
 
-        
+
 
         return { ok: true, data: result.Attributes };
     }
 
-    async updateTenantStatus(tenant_id,data) {
+    async updateTenantStatus(getTenantDto:GetTenantDto, data) {
         let result;
         try {
             result = await client
                 .update({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':tenant_id },
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
                     UpdateExpression: "set #status = :s",
-                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
                     ExpressionAttributeValues: {
                         ":s": data.status
                     },
-                    ExpressionAttributeNames:{
+                    ExpressionAttributeNames: {
                         "#status": "status",
-                      },
-                      ReturnValues:"ALL_NEW"
+                    },
+                    ReturnValues: "ALL_NEW"
                 })
                 .promise();
 
         } catch (error) {
-            if(error.code==='ConditionalCheckFailedException'){
-                error='TenantId Not Found';
-                return {ok:false,error:error}
-            }else{
+            if (error.code === 'ConditionalCheckFailedException') {
+                error = 'TenantId Not Found';
+                return { ok: false, error: error }
+            } else {
                 throw new InternalServerErrorException(error);
             }
         }
 
-        
+
 
         return { ok: true, data: result.Attributes };
     }
 
-    async deleteTenant(tenant_id) {
+    async deleteTenant(getTenantDto:GetTenantDto) {
         let result;
         try {
             result = await client
                 .delete({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':tenant_id },
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
                 })
                 .promise();
 
@@ -217,103 +228,159 @@ export class TenantRepository {
             throw new InternalServerErrorException(error);
         }
 
-        
+
 
         return { ok: true };
     }
 
-    async addPaymentCredentials(tenant_id,data) {
+    async addPaymentCredentials(paymentServiceDto:PaymentServiceDto,getTenantDto: GetTenantDto, addPaymentCredentialsDto:AddPaymentCredentialsDto) {
         let result;
-        const name=data.paymentService;
+        const name = addPaymentCredentialsDto.paymentService;
+        const paymentProperties = addPaymentCredentialsDto.paymentProperties;
+        const paymentPropertyValues = addPaymentCredentialsDto.paymentPropertyValues;
         try {
-            const response  =await client.query({
+            const response = await client.get({
                 TableName: 'tenant',
-                KeyConditionExpression:"#tenant_id=:tenantId",
-                ExpressionAttributeValues: {
-                    ":tenantId": 'super'
-                   }, 
-                   ExpressionAttributeNames: {
-                    "#tenant_id":"PK"
-                  },
-
-
-            }).promise()
-            if(response?.Items[0]?.paymentdata && response.Items[0].paymentdata.hasOwnProperty(name)){
-                const keys = Object.keys(response.Items[0].paymentdata[name]);
-                const paymentCredentials = {};
-                for (var i = 0; i < keys.length; i++){
-                    paymentCredentials[keys[i]] = data.credentials[i];
-                }
-                result = await client
-                    .update({
-                        TableName: 'tenant',
-                        Key: { 'PK':tenant_id,'SK':tenant_id },
-                        ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
-                        UpdateExpression: "set #paymentdata.#cred = :paymentData",
-                        ExpressionAttributeValues: {
-                            ":paymentData":paymentCredentials
-                        },
-                        ExpressionAttributeNames:{
-                            "#paymentdata":'paymentdata',
-                            "#cred":name
-                        },
-                        ReturnValues:"ALL_NEW"
+                Key: { 'PK': paymentServiceDto.superAdminId, 'SK': paymentServiceDto.superAdminId }
+            }).promise();
+            if (response?.Item?.paymentdata && response.Item.paymentdata.hasOwnProperty(name)) {
+                var keys = Object.keys(response.Item.paymentdata[name])
+                const checkForAll = paymentProperties.every(elem => keys.includes(elem))
+                if(paymentProperties.length == keys.length && checkForAll) {
+                    const paymentCredentials = {};
+                    keys.forEach((k, i) => {
+                        paymentCredentials[response.Item.paymentdata[name][paymentProperties[i]]]=paymentPropertyValues[i] 
                     })
-                    .promise();
-            }else{
-               return { ok: false, message:'Payment Service Not Exists'}
+                    result = await client
+                        .update({
+                            TableName: 'tenant',
+                            Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
+                            ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
+                            UpdateExpression: "set #paymentdata.#cred = :paymentData",
+                            ExpressionAttributeValues: {
+                                ":paymentData": paymentCredentials
+                            },
+                            ExpressionAttributeNames: {
+                                "#paymentdata": 'paymentdata',
+                                "#cred": name
+                            },
+                            ReturnValues: "ALL_NEW"
+                        })
+                        .promise();
+
+                }else{
+                    return { ok: false, message: 'All Valid Payment Properties Required' }
+                }
+            } else {
+                return { ok: false, message: 'Payment Service Not Exists' }
             }
 
         } catch (error) {
-            throw new InternalServerErrorException(error);
+            if (error.code === 'ConditionalCheckFailedException') {
+                return { ok: false, message: 'Invalid SuperadminId Or TenantId' };
+            } else {
+                throw new InternalServerErrorException(error);
+            }
         }
-        return { ok: true, data: result.Attributes };
+        return { ok: true, data: result };
     }
 
-    async addPaymentService(tenant_id,data) {
+    async addPaymentService(paymentServiceDto: PaymentServiceDto, addPaymentServiceDto:AddPaymentServiceDto) {
         let result;
-        const paymentService = data.paymentProperties.reduce((a,v)=>({
-            ...a,[v]:v
-        }),{})
-        const name=data.paymentService;
+        const paymentService = addPaymentServiceDto.paymentProperties.reduce((a, v) => ({
+            ...a, [v]: uuid()
+        }), {})
+        const name = addPaymentServiceDto.paymentService;
         try {
             result = await client
                 .update({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':tenant_id },
-                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
-                    UpdateExpression: "set #paymentdata.#cred = :paymentData",
+                    Key: { 'PK': paymentServiceDto.superAdminId, 'SK': paymentServiceDto.superAdminId },
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
+                    UpdateExpression: "set #paymentdata.#cred = if_not_exists(#paymentdata.#cred,:paymentData)",
                     ExpressionAttributeValues: {
-                        ":paymentData":paymentService
+                        ":paymentData": paymentService
                     },
-                    ExpressionAttributeNames:{
-                        "#paymentdata":'paymentdata',
-                        "#cred":name
-                      },
-                      ReturnValues:"ALL_NEW"
+                    ExpressionAttributeNames: {
+                        "#paymentdata": 'paymentdata',
+                        "#cred": name
+                    },
+                    ReturnValues: "ALL_NEW"
                 })
                 .promise();
-
         } catch (error) {
-            throw new InternalServerErrorException(error);
+            if (error.code === 'ConditionalCheckFailedException') {
+                return { ok: false, message: 'Invalid SuperadminId' };
+            } else {
+                throw new InternalServerErrorException(error);
+            }
+        }
+        return { ok: true, data: result.Attributes };
+    }
+    
+    async editPaymentService(paymentServiceDto: PaymentServiceDto, serviceNameDto:ServiceNameDto, editPaymentServiceDto:EditPaymentServiceDto) {
+        let result, response;
+        const name = serviceNameDto.serviceName;
+        try {
+            response = await client.get({
+                TableName: 'tenant',
+                Key: { 'PK': paymentServiceDto.superAdminId, 'SK': paymentServiceDto.superAdminId }
+            }).promise();
+
+            if (response?.Item?.paymentdata && response?.Item?.paymentdata?.hasOwnProperty(name)) {
+                const propertyName = editPaymentServiceDto.newPaymentPropertyName;
+                const newPropertyValue = editPaymentServiceDto.newPaymentPropertyValue;
+                const params = {
+                    TableName: 'tenant',
+                    Key: { 'PK': paymentServiceDto.superAdminId, 'SK': paymentServiceDto.superAdminId },
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
+                    ReturnValues: "ALL_NEW"
+                }
+                if(response.Item.paymentdata[name][newPropertyValue]){
+                    return { ok: false, message: 'Payment Service Property Should Be Unique' }
+                }else{
+                    if (response.Item.paymentdata[name][propertyName]) {
+                        const value = response.Item.paymentdata[name][propertyName];
+                        params['UpdateExpression']="set #paymentdata.#cred.#name =:paymentData REMOVE #paymentdata.#cred.#old";
+                        params['ExpressionAttributeNames']={"#old": propertyName, "#paymentdata": 'paymentdata', "#cred": name,
+                        "#name": newPropertyValue};
+                        params['ExpressionAttributeValues']={":paymentData":value};
+                    }else{
+                        const value = uuid();
+                        params['UpdateExpression']="set #paymentdata.#cred.#name =:paymentData";
+                        params['ExpressionAttributeNames']={"#paymentdata": 'paymentdata', "#cred": name,
+                        "#name": propertyName};
+                        params['ExpressionAttributeValues']={":paymentData":value};
+                    }
+                    result = await client.update(params).promise();
+                }
+            }else{
+                return { ok: false, message: 'Payment Service Not Exists' }
+            }
+        } catch (error) {
+            if (error.code === 'ConditionalCheckFailedException') {
+                return { ok: false, message: 'Invalid Superadmin Id' };
+            } else {
+                throw new InternalServerErrorException(error);
+            }
         }
         return { ok: true, data: result.Attributes };
     }
 
-    async removePaymentCredentials(tenant_id,paymentService) {
+    async removePaymentCredentials(getTenantDto: GetTenantDto, serviceNameDto:ServiceNameDto) {
         let result;
         try {
             result = await client
                 .update({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':tenant_id },
-                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
                     UpdateExpression: "REMOVE #paymentdata.#cred ",
-                    ExpressionAttributeNames:{
-                        "#paymentdata":'paymentdata',
-                        "#cred":paymentService
-                      },
-                    ReturnValues:"ALL_NEW"
+                    ExpressionAttributeNames: {
+                        "#paymentdata": 'paymentdata',
+                        "#cred": serviceNameDto.serviceName
+                    },
+                    ReturnValues: "ALL_NEW"
                 })
                 .promise();
 
@@ -323,7 +390,7 @@ export class TenantRepository {
         return { ok: true, data: result.Attributes };
     }
 
-    async getUsers(tenant_id) {
+    async getUsers(getTenantDto:GetTenantDto) {
         let users;
         try {
             const result = await client
@@ -333,13 +400,13 @@ export class TenantRepository {
                     KeyConditionExpression: "#tenant_id = :tenantId",
                     ExpressionAttributeValues: {
                         ":a": "user",
-                        ":tenantId": tenant_id
-                       }, 
-                       ExpressionAttributeNames: {
+                        ":tenantId": getTenantDto.tenantId
+                    },
+                    ExpressionAttributeNames: {
                         "#roles": "role",
                         "#tenant_id": "PK"
-                      },
-                       
+                    },
+
                 })
                 .promise();
 
@@ -355,13 +422,13 @@ export class TenantRepository {
         return { ok: true, data: users };
     }
 
-    async getUserById(tenant_id:string,user_id: string) {
+    async getUserById(getTenantDto:GetTenantDto, getUserDto:GetUserDto) {
         let user;
         try {
             const result = await client
                 .get({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':user_id },
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getUserDto.userId },
                 })
                 .promise();
 
@@ -371,42 +438,39 @@ export class TenantRepository {
         }
 
         if (!user) {
-            throw new NotFoundException(`User with ID "${user_id}" not found`);
+            throw new NotFoundException(`User with ID "${getUserDto.userId}" not found`);
         }
 
         return { ok: true, data: user };
     }
 
-    async updateUserStatus(tenant_id,user_id,data) {
+    async updateUserStatus(getTenantDto:GetTenantDto, getUserDto:GetUserDto, data) {
         let result;
         try {
             result = await client
                 .update({
                     TableName: 'tenant',
-                    Key: { 'PK':tenant_id,'SK':user_id },
+                    Key: { 'PK': getTenantDto.tenantId, 'SK': getUserDto.userId },
                     UpdateExpression: "set #status = :s",
-                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
+                    ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
                     ExpressionAttributeValues: {
                         ":s": data.status
                     },
-                    ExpressionAttributeNames:{
+                    ExpressionAttributeNames: {
                         "#status": "status",
-                      },
-                      ReturnValues:"ALL_NEW"
+                    },
+                    ReturnValues: "ALL_NEW"
                 })
                 .promise();
 
         } catch (error) {
-            if(error.code==='ConditionalCheckFailedException'){
-                error='UserId Or TenantId Not Found';
-                return {ok:false,error:error}
-            }else{
+            if (error.code === 'ConditionalCheckFailedException') {
+                error = 'UserId Or TenantId Not Found';
+                return { ok: false, error: error }
+            } else {
                 throw new InternalServerErrorException(error);
             }
         }
-
-        
-
         return { ok: true, data: result.Attributes };
     }
 }
