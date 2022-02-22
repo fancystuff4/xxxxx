@@ -30,7 +30,7 @@ export class Variant {
   })
   product: Product;
 
-  @OneToMany(() => VariantImage, (image) => image.variantId)
+  @OneToMany(() => VariantImage, (image) => image.variant)
   images: VariantImage[];
 
   @OneToMany(() => VariantOption, (variantOption) => variantOption.variant)
