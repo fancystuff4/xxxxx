@@ -6,15 +6,15 @@ import {
   ValidateNested,
 } from 'class-validator';
 
-export class SubCatImageCreateObj {
+export class ProductImageCreateObj {
   @IsNotEmpty()
   src: string;
 }
 
-export class SubCatImageCreateDto {
+export class ProductImageCreateDto {
   @IsArray()
   @ArrayNotEmpty()
   @ValidateNested({ each: true })
-  @Type(() => SubCatImageCreateObj)
-  images: SubCatImageCreateObj[];
+  @Type(() => ProductImageCreateObj)
+  images: ProductImageCreateObj[];
 }
