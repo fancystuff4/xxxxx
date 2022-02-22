@@ -1,4 +1,5 @@
-import { Injectable } from '@nestjs/common';
+// TO_DO PRODUCT UPDATE //
+import { HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product, ProductImage, ProductOption } from 'src/database/entities';
 import { PaginationDto } from 'src/helpers/common-dtos';
@@ -10,11 +11,12 @@ import {
 import {
   createCombinationOfElements,
   ensureNoOffsetWithoutLimit,
+  internalErrMsg,
   throwError,
   _isEmpty,
 } from 'src/helpers/methods';
 import { In, Repository } from 'typeorm';
-import { ProductAndOptionCreateDto } from './dto';
+import { ProductAndOptionCreateDto, ProductUpdateDto } from './dto';
 import { VariantService } from './variant/variant.service';
 
 interface validateProductsAndReturnInterface extends ValidateInterface {
@@ -119,11 +121,8 @@ export class ProductService {
       throwError(error);
     }
   }
-  // get products by pagination
-  // update product
-  // toggle product active status
-  // delete product
 
+  // get products by pagination or filtering ids
   async getProducts(
     subCategoryId: string,
     queryConditions: PaginationDto,
@@ -172,6 +171,71 @@ export class ProductService {
       }
 
       return products;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  // update product
+  async updateProduct(
+    subCategoryId: string,
+    productId: string,
+    updateObj: ProductUpdateDto,
+  ) {
+    console.log(subCategoryId, productId, updateObj);
+  }
+
+  // toggle product active status
+  async toggleProductActive(
+    subCategoryId: string,
+    productId: string,
+    active: boolean,
+  ): Promise<Product> {
+    try {
+      const { isValid } = await this.validateProductsAndReturn({
+        id: productId,
+        subCategoryId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg('Invalid product', HttpStatus.BAD_REQUEST);
+
+      const { affected } = await this.productRepository.update(
+        {
+          id: productId,
+        },
+        {
+          active,
+        },
+      );
+
+      if (affected < 1) throw internalErrMsg();
+
+      const affectedProduct = await this.productRepository.findOne(productId);
+
+      return affectedProduct;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+  // delete product
+  async deleteProduct(subCategoryId: string, productId: string): Promise<void> {
+    try {
+      const { isValid } = await this.validateProductsAndReturn({
+        id: productId,
+        subCategoryId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg(
+          'Invalid product. Please check the product and the sub-category id',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      await this.productRepository.delete({
+        id: productId,
+        subCategoryId,
+      });
     } catch (error) {
       throwError(error);
     }
