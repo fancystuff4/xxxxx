@@ -1,10 +1,13 @@
+// TO_DO PRODUCT UPDATE
 import {
   Body,
   Controller,
+  Delete,
   Get,
   HttpStatus,
   Param,
   Post,
+  Put,
   Query,
   Res,
   UseGuards,
@@ -59,7 +62,7 @@ export class ProductController {
     sendResponse(res, HttpStatus.OK, product || EMPTY_OBJECT);
   }
 
-  // get products by filtering ids
+  // get products by filtering ids or pagination
   @Get('')
   async getProductsByIds(
     @GetParameterFromRequest('subCategory') subCategory: SubCategory,
@@ -73,10 +76,37 @@ export class ProductController {
     });
     sendResponse(res, HttpStatus.OK, products);
   }
-  // get products by pagination
+
   // update product
   // toggle product active status
+  @Put(':productId/active')
+  async toggleProductActiveStatus(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Res() res: Response,
+    @Body('active', insertValidationPipe(PipeDataType.BOOLEAN)) active: boolean,
+  ): Promise<void> {
+    const product = await this.productService.toggleProductActive(
+      subCategory.id,
+      productId,
+      active,
+    );
+
+    sendResponse(res, HttpStatus.OK, product);
+  }
+
   // delete product
+  @Delete(':productId')
+  async deleteproductById(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.productService.deleteProduct(subCategory.id, productId);
+    sendResponse(res, HttpStatus.OK);
+  }
   //////////////////// OPTIONS ///////////////////
   // create product option
   // get product options by product id
