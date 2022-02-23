@@ -7,14 +7,13 @@ import {
   Param,
   Post,
   Put,
-  Query,
   Res,
   UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { Product, SubCategory } from 'src/database/entities';
+import { Product } from 'src/database/entities';
 import { ValidateProductGuard } from 'src/helpers/common-guards';
 import { GetParameterFromRequest } from 'src/helpers/decorators';
 import {
@@ -23,16 +22,14 @@ import {
   sendResponse,
 } from 'src/helpers/methods';
 import { VariantUpdateDto } from '../dto/variant';
+import { VariantImageCreateDto } from '../dto/variantImage';
 import { ProductService } from '../product.service';
 import { VariantService } from './variant.service';
 
 @Controller('subCategories/:subCategoryId/products/:productId/variants')
 @UseGuards(ValidateProductGuard)
 export class VariantController {
-  constructor(
-    private productService: ProductService,
-    private variantService: VariantService,
-  ) {}
+  constructor(private variantService: VariantService) {}
 
   @Put(':variantId')
   @UsePipes(new ValidationPipe({ whitelist: true }))
@@ -103,6 +100,75 @@ export class VariantController {
     @Res() res: Response,
   ): Promise<void> {
     await this.variantService.deleteVariantById(product.id, variantId);
+
+    sendResponse(res, HttpStatus.OK);
+  }
+
+  // get variant options by variant id
+  @Get(':variantId/options')
+  async getVariantOptionsByVariantId(
+    @GetParameterFromRequest('product') product: Product,
+    @Param('variantId', insertValidationPipe(PipeDataType.UUID))
+    variantId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const options = await this.variantService.getVariantOptionsByVariantId(
+      product.id,
+      variantId,
+    );
+
+    sendResponse(res, HttpStatus.OK, options);
+  }
+
+  // add variant images
+  @Post(':variantId/images')
+  async addVariantImages(
+    @GetParameterFromRequest('product') product: Product,
+    @Param('variantId', insertValidationPipe(PipeDataType.UUID))
+    variantId: string,
+    @Body() body: VariantImageCreateDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.variantService.addVariantImages(
+      product.id,
+      variantId,
+      body.images,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
+
+  // get variant images by variant id
+  @Get(':variantId/images')
+  async getImagesByVariantId(
+    @GetParameterFromRequest('product') product: Product,
+    @Param('variantId', insertValidationPipe(PipeDataType.UUID))
+    variantId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const images = await this.variantService.getImagesByVariantId(
+      product.id,
+      variantId,
+    );
+
+    sendResponse(res, HttpStatus.OK, images);
+  }
+
+  // delete variant images by image id
+  @Delete(':variantId/images/:imageId')
+  async deleteVariantImageById(
+    @GetParameterFromRequest('product') product: Product,
+    @Param('variantId', insertValidationPipe(PipeDataType.UUID))
+    variantId: string,
+    @Param('imageId', insertValidationPipe(PipeDataType.UUID))
+    imageId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    await this.variantService.deleteVariantImageById(
+      product.id,
+      variantId,
+      imageId,
+    );
 
     sendResponse(res, HttpStatus.OK);
   }

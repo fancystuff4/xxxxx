@@ -6,6 +6,7 @@ import { throwError, _isEmpty, internalErrMsg } from 'src/helpers/methods';
 import { FindOperator, In, Repository } from 'typeorm';
 import { VariantAndOptionCreateDto } from '../dto';
 import { VariantUpdateDto } from '../dto/variant';
+import { VariantImageCreateObj } from '../dto/variantImage';
 
 interface ValidateVariantsAndReturnInterface extends ValidateInterface {
   variants: Variant[];
@@ -168,6 +169,133 @@ export class VariantService {
 
       const { affected } = await this.variantRepository.delete({
         id: variantId,
+      });
+
+      if (affected < 1) throw internalErrMsg();
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  // get variant options by id
+  async getVariantOptionsByVariantId(
+    productId: string,
+    variantId: string,
+  ): Promise<VariantOption[]> {
+    try {
+      const {
+        isValid,
+        variants: [correspondingVariant],
+      } = await this.validateVariantsAndReturn(
+        {
+          id: variantId,
+          productId,
+        },
+        {
+          relations: ['options', 'options.subCatOption'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg(
+          'Invalid variant. Please check the product id and the variant id.',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      return correspondingVariant.options;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async addVariantImages(
+    productId: string,
+    variantId: string,
+    images: VariantImageCreateObj[],
+  ): Promise<VariantImage[]> {
+    try {
+      const { isValid } = await this.validateVariantsAndReturn({
+        id: variantId,
+        productId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg('Invalid variant', HttpStatus.BAD_REQUEST);
+
+      const newImages: VariantImage[] = [];
+
+      images.forEach((image) => {
+        let newImage = new VariantImage();
+        newImage = { ...newImage, ...image };
+        newImage.variantId = variantId;
+        newImages.push(newImage);
+      });
+
+      const insertedImages = await this.variantImageRepository.save(newImages);
+
+      return insertedImages;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async getImagesByVariantId(
+    productId: string,
+    variantId: string,
+  ): Promise<VariantImage[]> {
+    try {
+      const {
+        isValid,
+        variants: [correspondingVariant],
+      } = await this.validateVariantsAndReturn(
+        {
+          id: variantId,
+          productId,
+        },
+        {
+          relations: ['images'],
+        },
+      );
+
+      if (!isValid)
+        throw internalErrMsg('Invalid variant id', HttpStatus.BAD_REQUEST);
+
+      return correspondingVariant.images;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async deleteVariantImageById(
+    productId: string,
+    variantId: string,
+    imageId: string,
+  ): Promise<void> {
+    try {
+      const {
+        isValid,
+        variants: [correspondingVariant],
+      } = await this.validateVariantsAndReturn({
+        id: variantId,
+        productId,
+      });
+
+      if (!isValid)
+        throw internalErrMsg('Invalid variant', HttpStatus.BAD_REQUEST);
+
+      const imageToDelete = correspondingVariant.images.find(
+        (image) => image.id === imageId,
+      );
+
+      if (_isEmpty(imageToDelete))
+        throw internalErrMsg(
+          'No such image is present in the corresponding variant',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { affected } = await this.variantImageRepository.delete({
+        id: imageId,
+        variantId,
       });
 
       if (affected < 1) throw internalErrMsg();
