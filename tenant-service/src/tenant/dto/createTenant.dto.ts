@@ -1,4 +1,4 @@
-import {  IsNotEmpty,IsEmail } from 'class-validator';
+import {  IsNotEmpty,IsEmail,IsBoolean, IsNumber} from 'class-validator';
 
 export class CreateTenantDto {
     @IsNotEmpty()
@@ -12,7 +12,7 @@ export class CreateTenantDto {
     password: string;
 
     @IsNotEmpty()
-    address: string;
+    fulladdress: string;
 
     @IsNotEmpty()
     city: string;
@@ -24,8 +24,10 @@ export class CreateTenantDto {
     country: string;
 
     @IsNotEmpty()
+    @IsNumber()
     pin: string;
 
     @IsNotEmpty()
+    @IsBoolean()
     status: boolean;
 }

@@ -1,28 +1,27 @@
-import { IsOptional } from 'class-validator';
+import { IsNumber,IsBoolean,IsNotEmpty } from 'class-validator';
 
 export class UpdateTenantDto {
 
-    @IsOptional()
-    address: string;
-
-    @IsOptional()
+    @IsNotEmpty()
     fullname: string;
+    
+    @IsNotEmpty()
+    fulladdress: string;
 
-    @IsOptional()
-    username: string;
-
-    @IsOptional()
+    @IsNotEmpty()
     city: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     state: string;
 
-    @IsOptional()
+    @IsNotEmpty()
     country: string;
 
-    @IsOptional()
+    @IsNotEmpty()
+    @IsNumber()
     pin: string;
 
-    @IsOptional()
+    @IsNotEmpty()
+    @IsBoolean()
     status: boolean;
 }

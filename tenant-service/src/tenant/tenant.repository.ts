@@ -9,10 +9,10 @@ import client from '../db/client';
 import { v4 as uuid } from 'uuid';
 import * as bcrypt from 'bcrypt';
 import { GetTenantDto } from './dto/getTenant.dto';
-import console from 'console';
 import { EditPaymentServiceDto } from './dto/editPaymentService.dto';
 import { ServiceNameDto } from './dto/serviceName.dto';
 import { GetUserDto } from './dto/getUser.dto';
+import { UpdateUserStatus } from './dto/updateUserStatus.dto';
 
 export class TenantRepository {
     constructor() { }
@@ -23,13 +23,12 @@ export class TenantRepository {
         const hashed = await bcrypt.hash(password, saltOrRounds);
 
         const address = {
+            fulladdress:CreateTenantDto.fulladdress,
             city: CreateTenantDto.city,
             state: CreateTenantDto.state,
             country: CreateTenantDto.country,
             pin: CreateTenantDto.pin,
-
         }
-
 
         const newTenant = {
             PK: `TENANT${CreateTenantDto.username}`,
@@ -54,14 +53,12 @@ export class TenantRepository {
                             ConditionExpression: 'attribute_not_exists(PK)'
                         },
 
-                    }]
-
-
-                })
+                    }]})
                 .promise();
         } catch (error) {
             if (error.code === 'TransactionCanceledException') {
                 error = 'Tenant With This Username Already Exists';
+                return { ok: false, message: error}
             }
             throw new InternalServerErrorException(error);
 
@@ -77,6 +74,7 @@ export class TenantRepository {
             const result = await client.query({
                 TableName: 'tenant',
                 KeyConditionExpression: "#tenant_id=:tenantId",
+                
                 ExpressionAttributeValues: {
                     ":tenantId": getTenantDto.tenantId
                 },
@@ -86,13 +84,13 @@ export class TenantRepository {
             })
                 .promise();
 
-            tenant = result.Items;
+            tenant = result.Items[0];
         } catch (error) {
             throw new InternalServerErrorException(error);
         }
 
         if (!tenant) {
-            throw new NotFoundException(`Tenant with ID "${getTenantDto.tenantId}" not found`);
+            return { ok: false,error:`Tenant ID not found` };
         }
 
         return { ok: true, data: tenant };
@@ -111,7 +109,7 @@ export class TenantRepository {
                 ExpressionAttributeNames: {
                     "#roles": "role"
                 },
-                Limit: 15,
+                Limit: 20,
 
             };
             if (paginateTenantDto.lastItem) {
@@ -124,13 +122,7 @@ export class TenantRepository {
             tenants = result.Items;
             lastItemKey = result.LastEvaluatedKey;
         } catch (error) {
-            if (error) {
-                throw new InternalServerErrorException(error);
-            }
-        }
-
-        if (!tenants) {
-            throw new NotFoundException(`Tenants not found`);
+            throw new InternalServerErrorException(error);
         }
 
         return { ok: true, data: tenants, lastItem: lastItemKey };
@@ -141,6 +133,7 @@ export class TenantRepository {
 
         try {
             const updateAddress = {
+                fulladdress:updateTenantDto.fulladdress,
                 city: updateTenantDto.city,
                 state: updateTenantDto.state,
                 country: updateTenantDto.country,
@@ -169,8 +162,7 @@ export class TenantRepository {
 
         } catch (error) {
             if (error.code === 'ConditionalCheckFailedException') {
-                error = 'TenantId Not Found';
-                return { ok: false, error: error }
+                return { ok: false,error:`Tenant ID not found` };
             } else {
                 throw new InternalServerErrorException(error);
             }
@@ -181,7 +173,7 @@ export class TenantRepository {
         return { ok: true, data: result.Attributes };
     }
 
-    async updateTenantStatus(getTenantDto:GetTenantDto, data) {
+    async updateTenantStatus(getTenantDto:GetTenantDto, updateTenantStatus:UpdateUserStatus) {
         let result;
         try {
             result = await client
@@ -191,7 +183,7 @@ export class TenantRepository {
                     UpdateExpression: "set #status = :s",
                     ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
                     ExpressionAttributeValues: {
-                        ":s": data.status
+                        ":s": updateTenantStatus.status
                     },
                     ExpressionAttributeNames: {
                         "#status": "status",
@@ -202,8 +194,7 @@ export class TenantRepository {
 
         } catch (error) {
             if (error.code === 'ConditionalCheckFailedException') {
-                error = 'TenantId Not Found';
-                return { ok: false, error: error }
+                return { ok: false,error:`Tenant ID not found` };
             } else {
                 throw new InternalServerErrorException(error);
             }
@@ -220,11 +211,15 @@ export class TenantRepository {
             result = await client
                 .delete({
                     TableName: 'tenant',
+                    ConditionExpression:'attribute_exists(PK) AND attribute_exists(SK)',
                     Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
                 })
                 .promise();
 
         } catch (error) {
+            if(error.code === 'ConditionalCheckFailedException'){
+                return { ok: false, error:`Tenant ID not found` };
+            }
             throw new InternalServerErrorException(error);
         }
 
@@ -243,41 +238,45 @@ export class TenantRepository {
                 TableName: 'tenant',
                 Key: { 'PK': paymentServiceDto.superAdminId, 'SK': paymentServiceDto.superAdminId }
             }).promise();
-            if (response?.Item?.paymentdata && response.Item.paymentdata.hasOwnProperty(name)) {
-                var keys = Object.keys(response.Item.paymentdata[name])
-                const checkForAll = paymentProperties.every(elem => keys.includes(elem))
-                if(paymentProperties.length == keys.length && checkForAll) {
-                    const paymentCredentials = {};
-                    keys.forEach((k, i) => {
-                        paymentCredentials[response.Item.paymentdata[name][paymentProperties[i]]]=paymentPropertyValues[i] 
-                    })
-                    result = await client
-                        .update({
-                            TableName: 'tenant',
-                            Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
-                            ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
-                            UpdateExpression: "set #paymentdata.#cred = :paymentData",
-                            ExpressionAttributeValues: {
-                                ":paymentData": paymentCredentials
-                            },
-                            ExpressionAttributeNames: {
-                                "#paymentdata": 'paymentdata',
-                                "#cred": name
-                            },
-                            ReturnValues: "ALL_NEW"
+            if(Object.keys(response).length!=0){
+                if (response?.Item?.paymentdata && response.Item.paymentdata.hasOwnProperty(name)) {
+                    var keys = Object.keys(response.Item.paymentdata[name])
+                    const checkForAll = paymentProperties.every(elem => keys.includes(elem))
+                    if(paymentProperties.length == keys.length && checkForAll) {
+                        const paymentCredentials = {};
+                        keys.forEach((k, i) => {
+                            paymentCredentials[response.Item.paymentdata[name][paymentProperties[i]]]=paymentPropertyValues[i] 
                         })
-                        .promise();
+                        result = await client
+                            .update({
+                                TableName: 'tenant',
+                                Key: { 'PK': getTenantDto.tenantId, 'SK': getTenantDto.tenantId },
+                                ConditionExpression: 'attribute_exists(PK) AND attribute_exists(SK)',
+                                UpdateExpression: "set #paymentdata.#cred = :paymentData",
+                                ExpressionAttributeValues: {
+                                    ":paymentData": paymentCredentials
+                                },
+                                ExpressionAttributeNames: {
+                                    "#paymentdata": 'paymentdata',
+                                    "#cred": name
+                                },
+                                ReturnValues: "ALL_NEW"
+                            })
+                            .promise();
 
-                }else{
-                    return { ok: false, message: 'All Valid Payment Properties Required' }
+                    }else{
+                        return { ok: false, message: 'All Valid Payment Properties Required' }
+                    }
+                } else {
+                    return { ok: false, message: 'Payment Service Not Exists' }
                 }
-            } else {
-                return { ok: false, message: 'Payment Service Not Exists' }
+            }else{
+                return { ok: false, message: 'Invalid SuperadminId' }
             }
 
         } catch (error) {
             if (error.code === 'ConditionalCheckFailedException') {
-                return { ok: false, message: 'Invalid SuperadminId Or TenantId' };
+                return { ok: false, message: 'Invalid TenantId' };
             } else {
                 throw new InternalServerErrorException(error);
             }
@@ -310,7 +309,7 @@ export class TenantRepository {
                 .promise();
         } catch (error) {
             if (error.code === 'ConditionalCheckFailedException') {
-                return { ok: false, message: 'Invalid SuperadminId' };
+                return { ok: false, error:`Superadmin ID not found` };
             } else {
                 throw new InternalServerErrorException(error);
             }
@@ -349,7 +348,7 @@ export class TenantRepository {
                         const value = uuid();
                         params['UpdateExpression']="set #paymentdata.#cred.#name =:paymentData";
                         params['ExpressionAttributeNames']={"#paymentdata": 'paymentdata', "#cred": name,
-                        "#name": propertyName};
+                        "#name": newPropertyValue};
                         params['ExpressionAttributeValues']={":paymentData":value};
                     }
                     result = await client.update(params).promise();
@@ -385,6 +384,9 @@ export class TenantRepository {
                 .promise();
 
         } catch (error) {
+            if(error.code === 'ConditionalCheckFailedException'){
+                return { ok: false,message:'Invalid TenantId'}
+            }
             throw new InternalServerErrorException(error);
         }
         return { ok: true, data: result.Attributes };

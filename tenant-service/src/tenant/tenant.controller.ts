@@ -27,7 +27,8 @@ export class TenantController {
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenants: tenant.data,
+                    message:'List of tenants',
+                    data: tenant.data,
                     lastItem: tenant.lastItem
                 });
             } else {
@@ -40,7 +41,7 @@ export class TenantController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
@@ -52,19 +53,21 @@ export class TenantController {
             if (newTenant.ok) {
                 return res.status(HttpStatus.CREATED).json({
                     ok: true,
+                    message: 'New Tenant Created',
                     data: newTenant.data,
                 });
             } else {
                 return res.status(HttpStatus.BAD_REQUEST).json({
                     ok: false,
                     message: 'Error Adding New Tenant',
+                    error:newTenant.message,
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error.message,
+                error: "Internal Server Error",
             });
         }
     }
@@ -76,19 +79,21 @@ export class TenantController {
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenant: tenant.data,
+                    message:'Tenant Details',
+                    data: tenant.data,
                 });
             } else {
-                return res.status(HttpStatus.BAD_REQUEST).json({
+                return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
                     message: 'Error Trying to Get Tenant',
+                    error:tenant.error
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
@@ -100,7 +105,8 @@ export class TenantController {
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenant: tenant.data,
+                    message:'Tenant Details Updated',
+                    data: tenant.data,
                     
                 });
             } else {
@@ -114,7 +120,7 @@ export class TenantController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
@@ -128,16 +134,17 @@ export class TenantController {
                     ok: true
                 });
             } else {
-                return res.status(HttpStatus.BAD_REQUEST).json({
+                return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: 'Error Trying to Get Tenant',
+                    message: 'Error Trying to Delete Tenant',
+                    error:tenant.error
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                errors: 'Internal Server Error',
             });
         }
     }
@@ -145,23 +152,25 @@ export class TenantController {
     @Post('superadmin/:superAdminId/payments')
     async addPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Body() addPaymentServiceDto: AddPaymentServiceDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.addPaymentService(paymentServiceDto,addPaymentServiceDto);
-            if (tenant.ok) {
+            const service: any = await this.tenantService.addPaymentService(paymentServiceDto,addPaymentServiceDto);
+            if (service.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenant: tenant.data,
+                    message:'Payment Service Added',
+                    data: service.data,
                 });
             } else {
                 return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: tenant.message,
+                    message: 'Error Trying to Add Payment Service',
+                    error:service.error
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
@@ -169,23 +178,25 @@ export class TenantController {
     @Put('superadmin/:superAdminId/payments/:serviceName')
     async editPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Param() serviceNameDto: ServiceNameDto,@Body() editPaymentServiceDto: EditPaymentServiceDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
-            if (tenant.ok) {
+            const service: any = await this.tenantService.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
+            if (service.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenant: tenant.data,
+                    message: 'Payment Service Updated',
+                    data: service.data,
                 });
             } else {
                 return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: tenant.message,
+                    message: 'Error Trying to Update Payment Service',
+                    error: service.error
                 });
             }
         } catch (error) {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
@@ -202,7 +213,7 @@ export class TenantController {
             } else {
                 return res.status(HttpStatus.BAD_REQUEST).json({
                     ok: false,
-                    message: 'Error Trying to Get Tenant',
+                    message: 'Error Trying to Add Payment credentials',
                     error:tenant.message
                 });
             }
@@ -218,16 +229,16 @@ export class TenantController {
     @Delete('tenants/:tenantId/payments/:serviceName')
     async removePaymentCredentials(@Param() getTenantDto: GetTenantDto,@Param() serviceNameDto: ServiceNameDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.removePaymentCredentials(getTenantDto,serviceNameDto);
-            if (tenant.ok) {
+            const service: any = await this.tenantService.removePaymentCredentials(getTenantDto,serviceNameDto);
+            if (service.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
-                    tenant: tenant.data,
+                    service: service.data,
                 });
             } else {
-                return res.status(HttpStatus.BAD_REQUEST).json({
+                return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: 'Error Trying to Get Tenant',
+                    message: service.message,
                 });
             }
         } catch (error) {
@@ -319,12 +330,13 @@ export class TenantController {
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
+                    message:'Tenant Details Updated',
                     tenant: tenant.data,
                 });
             } else {
                 return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
-                    message: 'Error Trying to Update Tenant',
+                    message: 'Error Trying to Update Tenant Status',
                     error:tenant.error
                 });
             }
@@ -332,7 +344,7 @@ export class TenantController {
             return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
                 ok: false,
                 message: 'Error Trying to reach DB',
-                errors: error,
+                error: 'Internal Server Error',
             });
         }
     }
