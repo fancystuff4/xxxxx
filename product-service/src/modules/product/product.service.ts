@@ -1,10 +1,17 @@
 // TO_DO PRODUCT UPDATE //
 import { HttpStatus, Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Product, ProductImage, ProductOption } from 'src/database/entities';
+import { InjectConnection, InjectRepository } from '@nestjs/typeorm';
+import {
+  Product,
+  ProductImage,
+  ProductOption,
+  Variant,
+  VariantOption,
+} from 'src/database/entities';
 import { PaginationDto } from 'src/helpers/common-dtos';
 import {
   objType,
+  OPTION_ACTION_TYPES,
   paginationOrIds,
   ValidateInterface,
 } from 'src/helpers/constants';
@@ -15,9 +22,19 @@ import {
   throwError,
   _isEmpty,
 } from 'src/helpers/methods';
-import { In, Repository } from 'typeorm';
-import { ProductAndOptionCreateDto, ProductUpdateDto } from './dto';
-import { ProductImageCreateObj } from './dto/productImage';
+import {
+  Connection,
+  DeleteResult,
+  In,
+  Repository,
+  UpdateResult,
+} from 'typeorm';
+import {
+  ProductAndOptionCreateDto,
+  ProductOptionCreateObj,
+  ProductOptionUpdateDto,
+  ProductImageCreateObj,
+} from './dto';
 import { VariantService } from './variant/variant.service';
 
 interface validateProductsAndReturnInterface extends ValidateInterface {
@@ -34,6 +51,7 @@ export class ProductService {
     @InjectRepository(ProductOption)
     private productOptionRepository: Repository<ProductOption>,
     private variantService: VariantService,
+    @InjectConnection() private connection: Connection,
   ) {}
 
   // create product
@@ -96,8 +114,6 @@ export class ProductService {
 
       return productWithOptions;
     } catch (error) {
-      console.log(error);
-
       throwError(error);
     }
   }
@@ -113,7 +129,12 @@ export class ProductService {
           id: In(productIds),
         },
         {
-          relations: ['options', 'variants', 'variants.options'],
+          relations: [
+            'options',
+            'variants',
+            'variants.options',
+            'variants.options.subCatOption',
+          ],
         },
       );
 
@@ -177,13 +198,355 @@ export class ProductService {
     }
   }
 
-  // update product
-  async updateProduct(
+  // add/ remove value to/ from existing product option
+  async addOrRemoveValueFromProductOption(
     subCategoryId: string,
     productId: string,
-    updateObj: ProductUpdateDto,
-  ) {
-    console.log(subCategoryId, productId, updateObj);
+    inputObj: ProductOptionUpdateDto,
+    product: Product,
+  ): Promise<Product> {
+    const { actionType, values, subCatOptionId } = inputObj;
+    try {
+      if (actionType === OPTION_ACTION_TYPES.ADD) {
+        // find product options which does not have the provided sub-category option id
+        // create variants by mixing the new values with the option values
+        // found in last step
+
+        const correspondingProductOption = product.options.find(
+          (option) => option.subCatOptionId === subCatOptionId,
+        );
+
+        if (_isEmpty(correspondingProductOption))
+          throw internalErrMsg(
+            'No such product option is found',
+            HttpStatus.BAD_REQUEST,
+          );
+
+        const alreadyAvailableValues =
+          correspondingProductOption.availableValues;
+
+        const existingValue = alreadyAvailableValues.find((value) =>
+          values.includes(value),
+        );
+
+        if (!_isEmpty(existingValue))
+          throw internalErrMsg(
+            `Value ${existingValue} is already present in this product.`,
+            HttpStatus.BAD_REQUEST,
+          );
+
+        const optionsWithoutTheSubCatOption = product.options.filter(
+          (option) => option.subCatOptionId !== subCatOptionId,
+        );
+
+        const { newVariantsArray, optionsArray } =
+          this.getVariantAndOptionsArrays(
+            optionsWithoutTheSubCatOption,
+            values,
+            { subCatOptionId, productId },
+          );
+
+        await this.connection.transaction(async (entityManager) => {
+          const createVariantPromise = entityManager.save(
+            Variant,
+            newVariantsArray,
+          );
+
+          const addToProductOptPromise = entityManager.update(
+            ProductOption,
+            {
+              productId,
+              subCatOptionId,
+            },
+            {
+              availableValues: [...alreadyAvailableValues, ...values],
+            },
+          );
+
+          // create variant using entity manager
+          const createVariantOptPromise = entityManager.save(
+            VariantOption,
+            optionsArray,
+          );
+
+          await Promise.all([
+            addToProductOptPromise,
+            createVariantPromise,
+            createVariantOptPromise,
+          ]);
+        });
+
+        const updatedProduct = await this.productRepository.findOne({
+          where: { id: productId },
+          relations: ['images', 'options', 'variants'],
+        });
+
+        return updatedProduct;
+      } else if (actionType === OPTION_ACTION_TYPES.REMOVE) {
+        // remove variants whose product id is the provided one and has the provided value for the provided sub-cat-option-id
+
+        // remove the value from the options array
+        const relevantVariants = await this.variantService.getVariantWithValue(
+          productId,
+          subCatOptionId,
+          values,
+        );
+
+        const idsOfVariantsToRemove = relevantVariants.map(
+          (variant) => variant.id,
+        );
+
+        const alreadyAvailableValues = product.options.find(
+          (option) => option.subCatOptionId === subCatOptionId,
+        ).availableValues;
+
+        const newAvailableValues = alreadyAvailableValues.filter(
+          (value) => !values.includes(value),
+        );
+
+        await this.connection.transaction(async (entityManager) => {
+          // if newAvailableValues is empty, then remove the whole product option.
+          let optionsPromise: Promise<DeleteResult | UpdateResult>;
+          if (_isEmpty(newAvailableValues)) {
+            optionsPromise = entityManager.delete(ProductOption, {
+              productId,
+              subCatOptionId,
+            });
+          } else {
+            optionsPromise = entityManager.update(
+              ProductOption,
+              { productId, subCatOptionId },
+              { availableValues: newAvailableValues },
+            );
+          }
+
+          const deleteVariantsPromise = entityManager.delete(Variant, {
+            productId,
+            id: In(idsOfVariantsToRemove),
+          });
+
+          await Promise.all([optionsPromise, deleteVariantsPromise]);
+        });
+
+        const updatedProduct = await this.productRepository.findOne({
+          where: {
+            id: productId,
+          },
+          relations: ['options', 'variants'],
+        });
+
+        return updatedProduct;
+      } else {
+        throw internalErrMsg(
+          "Invalid 'actionType' value. Only 'ADD' or 'REMOVE' is accepted",
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  // add product option
+  async addProductOption(
+    subCategoryId: string,
+    productId: string,
+    optionObj: ProductOptionCreateObj,
+    product: Product,
+  ): Promise<Product> {
+    // add the first option value to the existing variants,
+    // create variants from other options and the remaining incoming values
+    try {
+      const { subCatOptionId, availableValues, active } = optionObj;
+
+      const { variants } = product;
+      const variantOptionsFromFirstValue: VariantOption[] = [];
+
+      variants.forEach((variant) => {
+        const newOption = new VariantOption();
+        newOption.value = availableValues[0];
+        newOption.active = active;
+        newOption.subCatOptionId = subCatOptionId;
+        newOption.variant = variant;
+
+        variantOptionsFromFirstValue.push(newOption);
+      });
+
+      const [_, ...restValues] = availableValues;
+
+      let valuesForNewVariants: string[] = [];
+
+      if (_isEmpty(variants)) {
+        valuesForNewVariants = availableValues;
+      } else {
+        valuesForNewVariants = restValues;
+      }
+
+      const { newVariantsArray, optionsArray: variantOptionsFromOtherValues } =
+        this.getVariantAndOptionsArrays(product.options, valuesForNewVariants, {
+          subCatOptionId,
+          productId,
+        });
+
+      const newProductOption = new ProductOption();
+      newProductOption.availableValues = availableValues;
+      newProductOption.productId = productId;
+      newProductOption.subCatOptionId = subCatOptionId;
+      newProductOption.active = true;
+
+      await this.connection.transaction(async (entityManager) => {
+        const nameChangePromiseArray = [];
+        product.variants.forEach((variant) => {
+          nameChangePromiseArray.push(
+            entityManager.update(
+              Variant,
+              { id: variant.id },
+              { name: variant.name + `${availableValues[0]}` },
+            ),
+          );
+        });
+
+        await Promise.all(nameChangePromiseArray);
+
+        const newVariantsPromise = entityManager.save(
+          Variant,
+          newVariantsArray,
+        );
+        const newVariantOptionsPromise = entityManager.save(VariantOption, [
+          ...variantOptionsFromOtherValues,
+          ...variantOptionsFromFirstValue,
+        ]);
+
+        const newProductOptionPromise = entityManager.save(
+          ProductOption,
+          newProductOption,
+        );
+
+        await Promise.all([
+          newVariantsPromise,
+          newVariantOptionsPromise,
+          newProductOptionPromise,
+        ]);
+      });
+
+      const updatedProduct = await this.productRepository.findOne({
+        where: { id: productId },
+        relations: ['images', 'options', 'variants'],
+      });
+
+      return updatedProduct;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async removeProductOption(
+    subCategoryId: string,
+    productId: string,
+    optionId: string,
+    product: Product,
+  ): Promise<Product> {
+    try {
+      // removal of product option should be allowed only if one value is
+      // present in the product_option
+      const { options } = product;
+
+      let correspodingOption: ProductOption;
+      const otherOptions: ProductOption[] = [];
+
+      options.forEach((option) => {
+        if (option.id === optionId) {
+          correspodingOption = option;
+          return;
+        }
+        otherOptions.push(option);
+      });
+
+      if (_isEmpty(correspodingOption))
+        throw internalErrMsg(
+          'No such option is found for the product',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      if (correspodingOption.availableValues.length > 1)
+        throw internalErrMsg(
+          'Product option can be deleted only if it has one or less available values',
+          HttpStatus.BAD_REQUEST,
+        );
+
+      const { variants } = product;
+      const variantIds = variants.map((variant) => variant.id);
+
+      // find the variant ids which were having the sub-cat option id and the product id
+
+      await this.connection.transaction(async (entityManager) => {
+        // remove the variant_option where subCatOptionId and variant ids that can be got from the product details
+        const removeVariantOptionsPromise = entityManager.delete(
+          VariantOption,
+          {
+            subCatOptionId: correspodingOption.subCatOptionId,
+            variant: In(variantIds),
+          },
+        );
+
+        // rename, if other options are available. If not, delete the variants
+        const variantPromise: Promise<any>[] = [];
+
+        if (_isEmpty(otherOptions)) {
+          // delete
+          variantPromise.push(
+            entityManager.delete(Variant, {
+              id: In(variantIds),
+              productId,
+            }),
+          );
+        } else {
+          // rename
+          variants.forEach((variant) => {
+            variantPromise.push(
+              entityManager.update(
+                Variant,
+                {
+                  id: variant.id,
+                  productId,
+                },
+                {
+                  name: variant.name.replace(
+                    correspodingOption.availableValues[0],
+                    '',
+                  ),
+                },
+              ),
+            );
+          });
+        }
+
+        // const renameVariants = entityManager.delete(Variant, {
+        //   id: In(variantIdsToRemove),
+        // });
+
+        // remove the product_option where subCatOptionId is the given one
+        const removeProductOptionPromise = entityManager.delete(ProductOption, {
+          productId,
+          id: optionId,
+        });
+
+        await Promise.all([
+          removeVariantOptionsPromise,
+          ...variantPromise,
+          removeProductOptionPromise,
+        ]);
+      });
+
+      const updatedProduct = await this.productRepository.findOne({
+        where: { id: productId },
+        relations: ['images', 'variants', 'options'],
+      });
+
+      return updatedProduct;
+    } catch (error) {
+      throwError(error);
+    }
   }
 
   // toggle product active status
@@ -366,5 +729,41 @@ export class ProductService {
     } catch (error) {
       throwError(error);
     }
+  }
+
+  getVariantAndOptionsArrays(
+    productOptions: ProductOption[],
+    incomingValues: string[],
+    ids: { productId: string; subCatOptionId: string },
+  ) {
+    const valueAndOptionIds: { subCatOptionId: string; value: any }[][] = [];
+    const { productId, subCatOptionId } = ids;
+
+    productOptions.forEach((option) => {
+      const vidArray = option.availableValues.map((value) => ({
+        value,
+        subCatOptionId: option.subCatOptionId,
+      }));
+
+      valueAndOptionIds.push(vidArray);
+    });
+    valueAndOptionIds.push(
+      incomingValues.map((value) => ({ value, subCatOptionId })),
+    );
+
+    const combinations = createCombinationOfElements(valueAndOptionIds);
+
+    const variantsObj = combinations.map((options) => ({
+      name: options.reduce((a, c) => a + c.value + '/ ', ''),
+      productId: productId,
+      active: true,
+      price: 0,
+      options,
+    }));
+
+    const variantsAndOptionsArray =
+      this.variantService.getNewVariantAndOptionsArray(productId, variantsObj);
+
+    return variantsAndOptionsArray;
   }
 }

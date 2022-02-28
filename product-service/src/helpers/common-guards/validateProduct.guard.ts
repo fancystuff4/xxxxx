@@ -26,7 +26,7 @@ export class ValidateProductGuard implements CanActivate {
         subCategoryId,
       },
       {
-        relations: ['subCategory'],
+        relations: ['subCategory', 'options', 'variants'],
       },
     );
 

@@ -15,9 +15,12 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { Response } from 'express';
-import { SubCategory } from 'src/database/entities';
+import { Product, SubCategory } from 'src/database/entities';
 import { PaginationDto } from 'src/helpers/common-dtos';
-import { ValidateSubCategoryGuard } from 'src/helpers/common-guards';
+import {
+  ValidateProductGuard,
+  ValidateSubCategoryGuard,
+} from 'src/helpers/common-guards';
 import { EMPTY_OBJECT } from 'src/helpers/constants';
 import { GetParameterFromRequest } from 'src/helpers/decorators';
 import {
@@ -25,8 +28,12 @@ import {
   PipeDataType,
   sendResponse,
 } from 'src/helpers/methods';
-import { ProductAndOptionCreateDto } from './dto';
-import { ProductImageCreateDto } from './dto/productImage';
+import {
+  ProductAndOptionCreateDto,
+  ProductOptionCreateObj,
+  ProductOptionUpdateDto,
+  ProductImageCreateDto,
+} from './dto';
 import { ProductService } from './product.service';
 
 @Controller('subCategories/:subCategoryId/products')
@@ -111,12 +118,76 @@ export class ProductController {
     sendResponse(res, HttpStatus.OK);
   }
   //////////////////// OPTIONS ///////////////////
-  // create product option
+  // add product option
+  @Post(':productId/options')
+  @UsePipes(new ValidationPipe({ whitelist: true }))
+  @UseGuards(ValidateProductGuard)
+  async addProductOption(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @GetParameterFromRequest('product') product: Product,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Body() body: ProductOptionCreateObj,
+    @Res() res: Response,
+  ): Promise<void> {
+    const updatedProduct = await this.productService.addProductOption(
+      subCategory.id,
+      productId,
+      body,
+      product,
+    );
+
+    sendResponse(res, HttpStatus.OK, updatedProduct);
+  }
+
+  // add/ remove value to/ from existing product option
+  @Put(':productId/options/:optionId')
+  @UseGuards(ValidateProductGuard)
+  async addOrRemoveExistingOptionValues(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @GetParameterFromRequest('product') product: Product,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Param('optionId', insertValidationPipe(PipeDataType.UUID))
+    optionId: string,
+    @Body() body: ProductOptionUpdateDto,
+    @Res() res: Response,
+  ): Promise<void> {
+    const variants =
+      await this.productService.addOrRemoveValueFromProductOption(
+        subCategory.id,
+        productId,
+        body,
+        product,
+      );
+
+    sendResponse(res, HttpStatus.OK, variants);
+  }
   // get product options by product id
   // get product option by option id
   // update product option
   // toggle product option active
   // delete product option
+  @Delete(':productId/options/:optionId')
+  @UseGuards(ValidateProductGuard)
+  async removeProductOption(
+    @GetParameterFromRequest('subCategory') subCategory: SubCategory,
+    @GetParameterFromRequest('product') product: Product,
+    @Param('productId', insertValidationPipe(PipeDataType.UUID))
+    productId: string,
+    @Param('optionId', insertValidationPipe(PipeDataType.UUID))
+    optionId: string,
+    @Res() res: Response,
+  ): Promise<void> {
+    const updatedProduct = await this.productService.removeProductOption(
+      subCategory.id,
+      productId,
+      optionId,
+      product,
+    );
+
+    sendResponse(res, HttpStatus.OK, updatedProduct);
+  }
   ////////////////////// IMAGES ///////////////////////
   // create product image
   @Post(':productId/images')
