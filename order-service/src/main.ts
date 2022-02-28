@@ -4,7 +4,7 @@ import { createServer, proxy } from 'aws-serverless-express';
 import { eventContext } from 'aws-serverless-express/middleware';
 import { ExpressAdapter } from '@nestjs/platform-express';
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
+import { AppModule } from './app/app.module';
 
 import * as express from 'express'
 // NOTE: If you get ERR_CONTENT_DECODING_FAILED in your browser, this is likely

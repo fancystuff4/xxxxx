@@ -1,9 +1,19 @@
 import { IsNotEmpty } from 'class-validator';
+import { ProductDetailsDto } from './productDetails.dto';
 
 export class CreateOrderDto {
     @IsNotEmpty()
-    title: string;
-
+    productDetails: ProductDetailsDto;
+    
     @IsNotEmpty()
-    category: string;
+    quantity: number;
+    
+    @IsNotEmpty()
+    orderDate: number;
+    
+    @IsNotEmpty()
+    paymentStatus: 'success' | 'failed';
+        
+    @IsNotEmpty()
+    orderStatus: 'placed' | 'outForDelivery' | 'delivered';
 }
