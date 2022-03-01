@@ -1,6 +1,6 @@
 import axios , { AxiosRequestConfig } from 'axios';
-import { ErrorResponseDto } from './dto/error.dto';
-import { ResponseDto } from './dto/response.dto';
+import { ErrorResponseDto } from '../../modules/desktop/functions/dto/error.dto';
+import { ResponseDto } from '../../modules/desktop/functions/dto/response.dto';
 
 export const InvokeAPI = async (url: string, method, data, headers, port: number) : Promise<ResponseDto | ErrorResponseDto> =>{
     var config : AxiosRequestConfig<any> = {
@@ -19,10 +19,10 @@ export const InvokeAPI = async (url: string, method, data, headers, port: number
     let msg : ResponseDto | ErrorResponseDto;
     await axios(config)
     .then(response => {
-    msg = { statusCode: response.status, data: response.data };
+        msg = { statusCode: response.status, data: response.data };
     })
     .catch(error => {
-    msg = { statusCode: error.response.status, data: error.response.data };
+        msg = { statusCode: error.response.status, data: error.response.data };
     });
     return msg;
 }

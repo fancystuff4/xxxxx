@@ -1,6 +1,6 @@
 import { HttpService } from '@nestjs/axios';
 import { Injectable } from '@nestjs/common';
-import { InvokeAPI } from '../functions/InvokeAPI/invokeAPI';
+import { InvokeAPI } from '../../../common/methods/invokeAPI';
 import { ErrorResponseDto } from './dto/error.dto';
 import { GetUserProfileResponseDto } from './dto/getUserProfile.dto';
 import { LogoutResponseDto } from './dto/logout.dto';
