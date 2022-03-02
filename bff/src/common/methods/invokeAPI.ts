@@ -1,6 +1,6 @@
 import axios , { AxiosRequestConfig } from 'axios';
-import { ErrorResponseDto } from '../../modules/desktop/functions/dto/error.dto';
-import { ResponseDto } from '../../modules/desktop/functions/dto/response.dto';
+import { ErrorResponseDto } from '../../modules/desktop/dto/error.dto';
+import { ResponseDto } from '../../modules/desktop/dto/response.dto';
 
 export const InvokeAPI = async (url: string, method, data, headers, port: number) : Promise<ResponseDto | ErrorResponseDto> =>{
     var config : AxiosRequestConfig<any> = {

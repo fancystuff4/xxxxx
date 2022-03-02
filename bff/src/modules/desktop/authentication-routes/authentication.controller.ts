@@ -8,6 +8,7 @@ import { ErrorDto, ErrorResponseDto } from './dto/error.dto';
 import { SigninDto, SigninResponseDto } from './dto/signin.dto';
 import { SignupDto, SignupResponseDto } from './dto/signup.dto';
 import { RequestedHeaderDto } from './dto/requestedHeader.dto';
+import { SigninInputDto, SignupInputDto } from './dto/userDetailsInput.dto';
 
 @Controller('desktop/auth')
 class AuthenticationController {
@@ -15,7 +16,7 @@ class AuthenticationController {
 
     @Post('local/signup')
     async PostSignupAPI(
-        @Body() body: SignupDto,
+        @Body() body: SignupInputDto,
         @Response() res: any
     ) : Promise<SignupDto | ErrorDto> {
         const result : SignupResponseDto | ErrorResponseDto = await this.authenticationService.signup(body);
@@ -24,7 +25,7 @@ class AuthenticationController {
 
     @Post('local/signin')
     async PostSignInAPI(
-        @Body() body: SigninDto,
+        @Body() body: SigninInputDto,
         @Response() res: any
     ) : Promise<SigninDto | ErrorDto> {
         const result : SigninResponseDto | ErrorResponseDto = await this.authenticationService.signin(body);
