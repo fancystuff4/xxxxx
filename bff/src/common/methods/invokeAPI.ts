@@ -29,11 +29,7 @@ export const InvokeAPI = async (
         msg = response.data;
     })
     .catch(error => {
-        if (error.response) {
-            throw new HttpException(error.response.data, error.response.status)
-        } else {
-            throw new InternalServerErrorException(["Cannot Reach Server"])
-        }
+        msg = { statusCode: error?.response?.status, data: error?.response?.data };
     });
     return msg;
 }
