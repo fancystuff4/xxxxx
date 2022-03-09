@@ -1,4 +1,7 @@
 export enum ROUTES {
-    SIGN_UP = "sign_up",
-    SIGN_IN = "sign_in",
+    SIGN_UP = "signup",
+    SIGN_IN = "signin",
+    PROFILE = "profile",
+    REFRESH = "refresh",
+    LOGOUT = "logout"
 }

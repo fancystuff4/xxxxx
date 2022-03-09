@@ -1,11 +1,18 @@
-import axios , { AxiosRequestConfig } from 'axios';
-import { ErrorResponseDto } from '../../modules/desktop/dto/error.dto';
-import { ResponseDto } from '../../modules/desktop/dto/response.dto';
+import { HttpException, InternalServerErrorException } from '@nestjs/common';
+import axios , { AxiosRequestConfig, AxiosResponse } from 'axios';
 
-export const InvokeAPI = async (url: string, method, data, headers, port: number) : Promise<ResponseDto | ErrorResponseDto> =>{
+export const InvokeAPI = async (
+        url: string, 
+        method, 
+        data, 
+        headers, 
+        port: number
+    ) : Promise<any> => {
+        
     var config : AxiosRequestConfig<any> = {
         method: method,
         url: `http://localhost:${port}${url}`,
+        timeout: 10000
     };
 
     if(data !== undefined) {
@@ -16,13 +23,17 @@ export const InvokeAPI = async (url: string, method, data, headers, port: number
         config['headers'] = headers;
     }
     
-    let msg : ResponseDto | ErrorResponseDto;
+    let msg : any;
     await axios(config)
     .then(response => {
-        msg = { statusCode: response.status, data: response.data };
+        msg = response.data;
     })
     .catch(error => {
-        msg = { statusCode: error.response.status, data: error.response.data };
+        if (error.response) {
+            throw new HttpException(error.response.data, error.response.status)
+        } else {
+            throw new InternalServerErrorException(["Cannot Reach Server"])
+        }
     });
     return msg;
 }
