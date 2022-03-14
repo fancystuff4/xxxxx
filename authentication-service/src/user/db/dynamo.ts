@@ -6,8 +6,10 @@ export class Dynamo {
   client: AWS.DynamoDB.DocumentClient;
   constructor() {
     this.client = new AWS.DynamoDB.DocumentClient({
+      accessKeyId: 'fake-key',
       endpoint: 'http://localhost:3010',
       region: 'us-east-1',
+      secretAccessKey: 'fake-secret',
     });
   }
 }
