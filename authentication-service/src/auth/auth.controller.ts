@@ -57,6 +57,11 @@ export class AuthController {
     sendResponse(res, HttpStatus.OK);
   }
 
+  @Get('/verify')
+  verifyToken(@Res() res: Response) {
+    sendResponse(res, HttpStatus.OK);
+  }
+
   @Get('/profile')
   getProfile(@Req() req: Request, @Res() res: Response) {
     sendResponse(res, HttpStatus.OK, req.user);

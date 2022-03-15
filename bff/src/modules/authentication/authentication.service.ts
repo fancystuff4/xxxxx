@@ -27,4 +27,8 @@ export class AuthenticationService {
       return await InvokeAPI('/auth/profile', 'get', undefined, data, 3000);
     }
 
+    async verifyToken(data): Promise<any> {  
+      return await InvokeAPI('/auth/verify', 'get', undefined, data, 3000);
+    }
+
 }
