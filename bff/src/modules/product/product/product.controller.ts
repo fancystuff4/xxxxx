@@ -42,13 +42,12 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get(DESKTOP_ROUTES.PRODUCT_WITH_NO_PARAM)
+    @Get(DESKTOP_ROUTES.PRODUCT_PAGINATE)
     async GetProductsByIdsApi(
         @Response() res: any,
         @Query() { limit, offset, ids }: PaginationDto,
         @Param('subCategoryId') subCategoryId: string,
     ) : Promise<any> {
-        
         const result : any = await this.productService.getProductsByIds(subCategoryId,limit,offset,ids);
         return res.status(result.statusCode).json(result.data);
     }

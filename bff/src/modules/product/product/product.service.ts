@@ -9,17 +9,27 @@ export class ProductService {
       return result;
     }
 
-    async getOneProduct(subCategoryId,productId) {    
+    async getOneProduct(subCategoryId,productId) {   
       const result : any = await InvokeAPI(`/subCategories/${subCategoryId}/products/${productId}`, 'get',undefined , undefined, 3000);
       return result;
     }
 
-    async getProductsByIds(subCategoryId,limit,offset,ids) {    
-      const result : any = await InvokeAPI(`/subCategories/${subCategoryId}/products?limit=${limit}&offset=${offset}&ids=${ids}`, 'get',undefined , undefined, 3000);
+    async getProductsByIds(subCategoryId,limit,offset,ids) { 
+      var url = `/subCategories/${subCategoryId}/products`;
+      if(limit){
+        url + "/"+`limit=${limit}`;
+      }
+      if(offset){
+        url + "/"+`offset=${offset}`;
+      }
+      if(ids){
+        url + "/"+`ids=${ids}`;
+      }
+      const result : any = await InvokeAPI(url, 'get',undefined , undefined, 3000);
       return result;
     }
 
-    async getProducts(subCategoryId) {    
+    async getProducts(subCategoryId) { 
       const result : any = await InvokeAPI(`/subCategories/${subCategoryId}/products`, 'get',undefined , undefined, 3000);
       return result;
     }

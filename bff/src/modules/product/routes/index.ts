@@ -25,6 +25,7 @@ export enum DESKTOP_ROUTES {
 
     //Products
     PRODUCT_WITH_NO_PARAM ="desktop/subCategories/:subCategoryId/products",
+    PRODUCT_PAGINATE ="desktop/subCategories/:subCategoryId/all/products",
     PRODUCT_WITH_PARAM ="desktop/subCategories/:subCategoryId/products/:productId",
     PRODUCT_STATUS ="desktop/subCategories/:subCategoryId/products/:productId/active",
     PRODUCT_IMAGE_WITH_NO_PARAM ="desktop/subCategories/:subCategoryId/products/:productId/images",
