@@ -14,17 +14,18 @@ export class ProductService {
       return result;
     }
 
-    async getProductsByIds(subCategoryId,limit,offset,ids) { 
-      var url = `/subCategories/${subCategoryId}/products`;
+    async getProductsByIds(subCategoryId,limit,offset,ids) {
+      var url =`/subCategories/${subCategoryId}/products?`
       if(limit){
-        url += "/"+`limit=${limit}`;
-      }
+        url+= `limit=${limit}&`
+      } 
       if(offset){
-        url += "/"+`offset=${offset}`;
+        url+= `offset=${offset}&`
       }
-      if(ids){
-        url += "/"+`ids=${ids}`;
+      if(ids) {
+        url+= `ids=${ids}`
       }
+      console.log(url)
       const result : any = await InvokeAPI(url, 'get',undefined , undefined, 3000);
       return result;
     }
