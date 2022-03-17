@@ -32,10 +32,10 @@ export const sendResponse = (
 export const handleTokenVerifation = (err: any, user: any, info: any) => {
   if (err || !user) {
     if (info?.name === 'JsonWebTokenError')
-      throw new BadRequestException([info?.message || 'Invalid token']);
+      throw new UnauthorizedException([info?.message || 'Invalid token']);
 
     if (info?.name === 'TokenExpiredError')
-      throw new BadRequestException([info?.message || 'jwt expired']);
+      throw new UnauthorizedException([info?.message || 'jwt expired']);
 
     throw new UnauthorizedException(['You are not authorized']);
   }
