@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, ParseBoolPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, ParseBoolPipe, UseGuards } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { HttpService } from '@nestjs/axios';
 import { BrandInputDto,UpdateBrandDto } from './dto/brand.dto';
@@ -6,11 +6,13 @@ import { BrandLogoDto,BrandLogoUpdateDto } from './dto/brand.logo.dto';
 import { UpdateBrandStatusDto} from './dto/brand.status.dto';
 import { MAIN_ROUTES } from "../../../common/routes";
 import { DESKTOP_ROUTES } from '../routes';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
 class BrandController {
     constructor(private brandService: BrandService, private httpService: HttpService) {}
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.BRAND_WITH_NO_PARAM)
     async CreateBrandApi(
         @Body() body: BrandInputDto,
@@ -28,7 +30,7 @@ class BrandController {
         const result :  any = await this.brandService.getOneBrand(id);
         return res.status(result.statusCode).json(result.data);
     }
-
+    
     @Get(DESKTOP_ROUTES.BRAND_WITH_NO_PARAM)
     async GetBrandsApi(
         @Response() res: any
@@ -38,6 +40,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.BRAND_WITH_PARAM)
     async DeleteBrandApi(
         @Response() res: any,
@@ -48,6 +51,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.BRAND_WITH_PARAM)
     async UpdateBrandApi(
         @Response() res: any,
@@ -59,6 +63,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.BRAND_STATUS)
     async UpdateBrandStatusApi(
         @Body() body: UpdateBrandStatusDto,
@@ -70,6 +75,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.BRAND_LOGO_WITH_NO_PARAM)
     async AddBrandLogoApi(
         @Body() body: BrandLogoDto,
@@ -89,6 +95,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
     async UpdateBrandLogoApi(
         @Response() res: any,
@@ -101,6 +108,7 @@ class BrandController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
     async DeleteBrandLogoApi(
         @Response() res: any,

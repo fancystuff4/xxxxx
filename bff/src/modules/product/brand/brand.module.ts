@@ -1,5 +1,8 @@
 import { HttpModule } from '@nestjs/axios';
+import { APP_GUARD } from '@nestjs/core';
 import { Module } from '@nestjs/common';
+
+import { AuthGuard } from 'src/common/guards/auth.guard';
 import BrandController from './brand.controller';
 import { BrandService } from './brand.service';
 
@@ -9,4 +12,4 @@ import { BrandService } from './brand.service';
     providers: [BrandService]
 })
 
-export class BrandModule{};
+export class BrandModule { };

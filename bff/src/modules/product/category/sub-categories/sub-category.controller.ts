@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, ParseBoolPipe } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, ParseBoolPipe, UseGuards } from '@nestjs/common';
 import { SubCategoryService } from './sub-category.service';
 import { HttpService } from '@nestjs/axios';
 import { SubCatCreateDto,SubCatUpdateDto } from './dto/sub-category.dto';
@@ -8,11 +8,13 @@ import { SubCatOptCreateDto, SubCatOptUpdateDto } from './dto/sub-category.optio
 import { UpdateSubCatOptionStatusDto } from './dto/sub-category.option.status.dto';
 import { DESKTOP_ROUTES } from '../../routes';
 import { MAIN_ROUTES } from 'src/common/routes';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
 class SubCategoryController {
     constructor(private subCategoryService: SubCategoryService, private httpService: HttpService) {}
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.SUB_CATEGORY_WITH_NO_PARAM)
     async CreateSubCategoryApi(
         @Body() body: SubCatCreateDto,
@@ -23,6 +25,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    
     @Get(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
     async GetOneSubCategoryApi(
         @Param('id') id: string,
@@ -44,6 +47,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
     async DeleteSubCategoryApi(
         @Response() res: any,
@@ -55,6 +59,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
     async UpdateSubCategoryApi(
         @Response() res: any,
@@ -67,6 +72,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_STATUS)
     async UpdateSubCategoryStatusApi(
         @Body() body: UpdateSubCatStatusDto,
@@ -79,6 +85,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.OPTION_WITH_NO_PARAM)
     async CreateSubCategoryOptionsApi(
         @Body() body: SubCatOptCreateDto,
@@ -113,6 +120,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.OPTION_WITH_NO_PARAM)
     async UpdateSubCategoryOptionApi(
         @Body() body: SubCatOptUpdateDto,
@@ -126,6 +134,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.OPTION_STATUS)
     async UpdateSubCategoryOptionStatusApi(
         @Body() body: UpdateSubCatOptionStatusDto,
@@ -139,6 +148,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.OPTION_WITH_PARAM)
     async DeleteSubCategoryOptionApi(
         @Response() res: any,
@@ -151,6 +161,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_NO_PARAM)
     async AddSubCategoryImageApi(
         @Body() body: SubCatImageCreateDto,
@@ -185,6 +196,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM)
     async DeleteSubCategoryImageApi(
         @Body() body: any,

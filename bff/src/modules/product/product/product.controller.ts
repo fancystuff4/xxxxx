@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { HttpService } from '@nestjs/axios';
 import { ProductCreateDto } from './dto/product.dto';
@@ -7,11 +7,13 @@ import { ProductImageCreateDto } from './dto/product.image.dto';
 import { MAIN_ROUTES } from "../../../common/routes";
 import { DESKTOP_ROUTES } from '../routes';
 import { PaginationDto } from './dto/product.paginate.dto';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
 class ProductController {
     constructor(private productService: ProductService, private httpService: HttpService) {}
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.PRODUCT_WITH_NO_PARAM)
     async CreateProductApi(
         @Body() body: ProductCreateDto,
@@ -52,6 +54,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.PRODUCT_WITH_PARAM)
     async DeleteProductApi(
         @Response() res: any,
@@ -64,7 +67,7 @@ class ProductController {
     }
 
     
-
+    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.PRODUCT_STATUS)
     async UpdateProductStatusApi(
         @Body() body: UpdateProductStatusDto,
@@ -77,6 +80,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_NO_PARAM)
     async AddProductImagesApi(
         @Body() body: ProductImageCreateDto,
@@ -111,6 +115,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_PARAM)
     async DeleteProductImageApi(
         @Response() res: any,
