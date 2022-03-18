@@ -1,12 +1,11 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { AuthenticationService } from 'src/modules/authentication/authentication.service';
 import VariantController from './variant.controller';
 import { VariantService } from './variant.service';
 
 @Module({
-    imports: [HttpModule],
     controllers: [VariantController],
-    providers: [VariantService]
+    providers: [VariantService, AuthenticationService]
 })
 
 export class VariantModule{};

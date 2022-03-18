@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InvokeAPI } from '../../../../common/methods/invokeAPI';
 @Injectable()
 export class VariantService {
-    constructor(private httpService: HttpService) {}
     
     async updateVariant(data,subCategoryId,productId,variantId) {  
       const result :  any = await InvokeAPI(`/subCategories/${subCategoryId}/products/${productId}/variants/${variantId}`, 'put', data, undefined, 3000);

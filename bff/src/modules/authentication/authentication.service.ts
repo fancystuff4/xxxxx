@@ -4,9 +4,7 @@ import { InvokeAPI } from "src/common/methods/invokeAPI";
 
 @Injectable()
 export class AuthenticationService {
-    
-    constructor(private httpService: HttpService) {}
-    
+        
     async signup(data): Promise<any> {      
       return await InvokeAPI('/auth/local/signup', 'post', data, undefined, 3000);
     }

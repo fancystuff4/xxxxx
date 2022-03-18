@@ -4,7 +4,6 @@ import AuthenticationController from './authentication.controller';
 import { AuthenticationService } from './authentication.service';
 
 @Module({
-    imports: [HttpModule],
     controllers: [AuthenticationController],
     providers: [
         AuthenticationService

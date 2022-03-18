@@ -1,12 +1,11 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { AuthenticationService } from 'src/modules/authentication/authentication.service';
 import SubCategoryController from './sub-category.controller';
 import { SubCategoryService } from './sub-category.service';
 
 @Module({
-    imports: [HttpModule],
     controllers: [SubCategoryController],
-    providers: [SubCategoryService]
+    providers: [SubCategoryService, AuthenticationService]
 })
 
 export class SubCategoryModule{};

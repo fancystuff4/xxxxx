@@ -1,19 +1,16 @@
-import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, Query } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { HttpService } from '@nestjs/axios';
 import { ProductCreateDto } from './dto/product.dto';
 import { UpdateProductStatusDto } from './dto/product.status.dto';
 import { ProductImageCreateDto } from './dto/product.image.dto';
-import { MAIN_ROUTES } from "../../../common/routes";
 import { DESKTOP_ROUTES } from '../routes';
 import { PaginationDto } from './dto/product.paginate.dto';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 
 @Controller()
 class ProductController {
-    constructor(private productService: ProductService, private httpService: HttpService) {}
+    constructor(private productService: ProductService) {}
 
-    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.PRODUCT_WITH_NO_PARAM)
     async CreateProductApi(
         @Body() body: ProductCreateDto,
@@ -24,6 +21,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.PRODUCT_WITH_PARAM)
     async GetOneProductApi(
         @Param('productId') productId: string,
@@ -34,6 +32,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.PRODUCT_WITH_NO_PARAM)
     async GetProductsApi(
         @Response() res: any,
@@ -44,6 +43,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.PRODUCT_PAGINATE)
     async GetProductsByIdsApi(
         @Response() res: any,
@@ -54,7 +54,6 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.PRODUCT_WITH_PARAM)
     async DeleteProductApi(
         @Response() res: any,
@@ -67,7 +66,6 @@ class ProductController {
     }
 
     
-    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.PRODUCT_STATUS)
     async UpdateProductStatusApi(
         @Body() body: UpdateProductStatusDto,
@@ -80,7 +78,6 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_NO_PARAM)
     async AddProductImagesApi(
         @Body() body: ProductImageCreateDto,
@@ -92,6 +89,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_NO_PARAM)
     async GetProductImagesApi(
         @Response() res: any,
@@ -103,6 +101,7 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_PARAM)
     async GetOneProductImageApi(
         @Response() res: any,
@@ -115,7 +114,6 @@ class ProductController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_PARAM)
     async DeleteProductImageApi(
         @Response() res: any,

@@ -1,18 +1,15 @@
-import { Body, Controller, Get, Post, Response, Request,Param,Delete,Put, ParseBoolPipe, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put } from '@nestjs/common';
 import { CategoryService } from './category.service';
-import { HttpService } from '@nestjs/axios';
 import { CategoryCreateDto,CategoryUpdateDto } from './dto/category.dto';
 import { UpdateCategoryStatusDto } from './dto/category.status.dto';
 import { CategoryImageCreateDto, CategoryImageUpdateDto } from './dto/category.image.dto';
-import { MAIN_ROUTES } from "../../../common/routes";
 import { DESKTOP_ROUTES } from '../routes';
-import { AuthGuard } from 'src/common/guards/auth.guard';
+import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 
 @Controller()
 class CategoryController {
-    constructor(private categoryService: CategoryService, private httpService: HttpService) {}
+    constructor(private categoryService: CategoryService) {}
 
-    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.CATEGORY_WITH_NO_PARAM)
     async CreateCategoryApi(
         @Body() body: CategoryCreateDto,
@@ -22,6 +19,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.CATEGORY_WITH_PARAM)
     async GetOneCategoryApi(
         @Param('id') id: string,
@@ -31,6 +29,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.CATEGORY_WITH_NO_PARAM)
     async GetCategoriesApi(
         @Response() res: any
@@ -40,7 +39,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.CATEGORY_WITH_PARAM)
     async DeleteCategoryApi(
         @Response() res: any,
@@ -51,7 +49,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.CATEGORY_WITH_PARAM)
     async UpdateCategoryApi(
         @Response() res: any,
@@ -63,7 +60,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.CATEGORY_STATUS)
     async UpdateCategoryStatusApi(
         @Body() body: UpdateCategoryStatusDto,
@@ -75,7 +71,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Post(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_NO_PARAM)
     async AddCategoryImageApi(
         @Body() body: CategoryImageCreateDto,
@@ -86,6 +81,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_PARAM)
     async GetOneCategoryImageApi(
         @Param('id') id: string,
@@ -96,6 +92,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
+    @PublicRoute()
     @Get(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_NO_PARAM)
     async GetCategoryImagesApi(
         @Param('id') id: string,
@@ -105,7 +102,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Put(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_PARAM)
     async UpdateCategoryImageApi(
         @Param('id') id: string,
@@ -117,7 +113,6 @@ class CategoryController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @UseGuards(AuthGuard)
     @Delete(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_PARAM)
     async DeleteCategoryImageApi(
         @Param('id') id: string,

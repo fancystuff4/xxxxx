@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InvokeAPI } from '../../../common/methods/invokeAPI';
 @Injectable()
 export class CategoryService {
-    constructor(private httpService: HttpService) {}
     
     async createCategory(data) {  
       const result :  any = await InvokeAPI('/categories', 'post', data, undefined, 3000);

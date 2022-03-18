@@ -1,12 +1,11 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
+import { AuthenticationService } from 'src/modules/authentication/authentication.service';
 import ProductController from './product.controller';
 import { ProductService } from './product.service';
 
 @Module({
-    imports: [HttpModule],
     controllers: [ProductController],
-    providers: [ProductService]
+    providers: [ProductService, AuthenticationService]
 })
 
 export class ProductModule{};

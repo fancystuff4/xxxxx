@@ -2,7 +2,6 @@ import { HttpService } from '@nestjs/axios';
 import { InvokeAPI } from '../../../common/methods/invokeAPI';
 
 export class ProductService {
-    constructor(private httpService: HttpService) {}
     
     async createProduct(body,subCategoryId) {  
       const result :  any = await InvokeAPI(`/subCategories/${subCategoryId}/products`, 'post', body, undefined, 3000);

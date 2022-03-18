@@ -3,7 +3,6 @@ import { Injectable } from '@nestjs/common';
 import { InvokeAPI } from '../../../common/methods/invokeAPI';
 @Injectable()
 export class BrandService {
-    constructor(private httpService: HttpService) {}
     
     async createBrand(data) {  
       const result : any = await InvokeAPI('/brands', 'post', data, undefined, 3000);
