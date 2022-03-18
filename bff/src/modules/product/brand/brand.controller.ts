@@ -3,40 +3,40 @@ import { BrandService } from './brand.service';
 import { BrandInputDto,UpdateBrandDto } from './dto/brand.dto';
 import { BrandLogoDto,BrandLogoUpdateDto } from './dto/brand.logo.dto';
 import { UpdateBrandStatusDto} from './dto/brand.status.dto';
-import { DESKTOP_ROUTES } from '../routes';
+import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 
 @Controller()
 class BrandController {
     constructor(private brandService: BrandService) {}
 
-    @Post(DESKTOP_ROUTES.BRAND_WITH_NO_PARAM)
+    @Post(DESKTOP_ROUTES.BRANDS)
     async CreateBrandApi(
         @Body() body: BrandInputDto,
         @Response() res: any
     ) : Promise<BrandInputDto> {
         const result :any = await this.brandService.createBrand(body);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.BRAND_WITH_PARAM)
+    @Get([DESKTOP_ROUTES.BRAND_WITH_PARAM, MOBILE_ROUTES.BRAND_WITH_PARAM])
     async GetOneBrandApi(
         @Param('id') id: string,
         @Response() res: any
     ) : Promise<any> {
         const result :  any = await this.brandService.getOneBrand(id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
     
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.BRAND_WITH_NO_PARAM)
+    @Get([DESKTOP_ROUTES.BRANDS, MOBILE_ROUTES.BRANDS])
     async GetBrandsApi(
         @Response() res: any
     ) : Promise<any> {
         
         const result : any = await this.brandService.getBrands();
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Delete(DESKTOP_ROUTES.BRAND_WITH_PARAM)
@@ -46,7 +46,7 @@ class BrandController {
     ) : Promise<any> {
         
         const result : any = await this.brandService.deleteBrand(id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.BRAND_WITH_PARAM)
@@ -57,7 +57,7 @@ class BrandController {
     ) : Promise<UpdateBrandDto > {
         
         const result : any = await this.brandService.updateBrand(body,id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.BRAND_STATUS)
@@ -68,27 +68,27 @@ class BrandController {
     ) : Promise<void> {
         
         const result : any = await this.brandService.updateBrandStatus(body,id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
-    @Post(DESKTOP_ROUTES.BRAND_LOGO_WITH_NO_PARAM)
+    @Post(DESKTOP_ROUTES.BRAND_LOGOS)
     async AddBrandLogoApi(
         @Body() body: BrandLogoDto,
         @Param('id') id: string,
         @Response() res: any
     ) : Promise<BrandLogoDto> {
         const result :  any = await this.brandService.addBrandLogo(body,id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.BRAND_LOGO_WITH_NO_PARAM)
+    @Get([DESKTOP_ROUTES.BRAND_LOGOS, MOBILE_ROUTES.BRAND_LOGOS])
     async GetBrandLogosApi(
         @Param('id') id: string,
         @Response() res: any
     ) : Promise<any> {
         const result :  any = await this.brandService.getBrandLogos(id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
@@ -100,7 +100,7 @@ class BrandController {
     ) : Promise< BrandLogoUpdateDto> {
         
         const result :  any = await this.brandService.updateBrandLogo(body,id,logoId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Delete(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
@@ -111,7 +111,7 @@ class BrandController {
     ) : Promise<any> {
         
         const result : any = await this.brandService.deleteBrandLogo(id,logoId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 }
 export default BrandController;

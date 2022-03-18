@@ -5,7 +5,7 @@ import { UpdateSubCatStatusDto } from './dto/sub-category.status.dto';
 import { SubCatImageCreateDto } from './dto/sub-category.image.dto';
 import { SubCatOptCreateDto, SubCatOptUpdateDto } from './dto/sub-category.option.dto';
 import { UpdateSubCatOptionStatusDto } from './dto/sub-category.option.status.dto';
-import { DESKTOP_ROUTES } from '../../routes';
+import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 
 @Controller()
@@ -13,37 +13,36 @@ class SubCategoryController {
 
     constructor(private subCategoryService: SubCategoryService) {}
 
-    @Post(DESKTOP_ROUTES.SUB_CATEGORY_WITH_NO_PARAM)
+    @Post(DESKTOP_ROUTES.SUB_CATEGORIES)
     async CreateSubCategoryApi(
         @Body() body: SubCatCreateDto,
         @Param('id') id: string,
         @Response() res: any
     ) : Promise< SubCatCreateDto> {
         const result :  any = await this.subCategoryService.createSubCategory(body,id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
+    @Get([DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM, MOBILE_ROUTES.SUB_CATEGORY_WITH_PARAM])
     async GetOneSubCategoryApi(
         @Param('id') id: string,
         @Param('subCategoryId') subCategoryId: string,
         @Response() res: any
     ) : Promise<any> {
         const result :  any = await this.subCategoryService.getOneSubCategory(id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.SUB_CATEGORY_WITH_NO_PARAM)
+    @Get([DESKTOP_ROUTES.SUB_CATEGORIES, MOBILE_ROUTES.SUB_CATEGORIES])
     async GetSubCategoriesApi(
-        
         @Param('id') id: string,
         @Response() res: any,
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.getSubCategories(id);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
@@ -54,7 +53,7 @@ class SubCategoryController {
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.deleteSubCategory(id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
@@ -66,7 +65,7 @@ class SubCategoryController {
     ) : Promise< any> {
         
         const result : any = await this.subCategoryService.updateSubCategory(body,id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_STATUS)
@@ -78,10 +77,10 @@ class SubCategoryController {
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.updateSubCategoryStatus(body,id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
-    @Post(DESKTOP_ROUTES.OPTION_WITH_NO_PARAM)
+    @Post(DESKTOP_ROUTES.OPTIONS)
     async CreateSubCategoryOptionsApi(
         @Body() body: SubCatOptCreateDto,
         @Param('subCategoryId') subCategoryId: string,
@@ -89,11 +88,11 @@ class SubCategoryController {
         @Response() res: any
     ) : Promise< SubCatOptCreateDto> {
         const result :  any = await this.subCategoryService.addSubCategoryOption(body,id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.OPTION_WITH_PARAM)
+    @Get([DESKTOP_ROUTES.OPTION_WITH_PARAM, MOBILE_ROUTES.OPTION_WITH_PARAM])
     async GetOneSubCategoryOptionApi(
         @Param('subCategoryId') subCategoryId: string,
         @Param('id') id: string,
@@ -102,11 +101,11 @@ class SubCategoryController {
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.getSubCategoryOption(id,subCategoryId,optionId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.OPTION_WITH_NO_PARAM)
+    @Get([DESKTOP_ROUTES.OPTIONS, MOBILE_ROUTES.OPTIONS])
     async getSubCategoryOptionsApi(
         @Param('subCategoryId') subCategoryId: string,
         @Param('id') id: string,
@@ -114,10 +113,10 @@ class SubCategoryController {
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.getSubCategoryOptions(id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
-    @Put(DESKTOP_ROUTES.OPTION_WITH_NO_PARAM)
+    @Put(DESKTOP_ROUTES.OPTIONS)
     async UpdateSubCategoryOptionApi(
         @Body() body: SubCatOptUpdateDto,
         @Response() res: any,
@@ -127,7 +126,7 @@ class SubCategoryController {
     ) : Promise<SubCatOptUpdateDto> {
         
         const result : any = await this.subCategoryService.updateSubCategoryOption(body,id,subCategoryId,optionId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Put(DESKTOP_ROUTES.OPTION_STATUS)
@@ -140,7 +139,7 @@ class SubCategoryController {
     ) : Promise<UpdateSubCatOptionStatusDto> {
         
         const result : any = await this.subCategoryService.updateSubCategoryOptionStatus(body,id,subCategoryId,optionId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Delete(DESKTOP_ROUTES.OPTION_WITH_PARAM)
@@ -152,10 +151,10 @@ class SubCategoryController {
     ) : Promise<any> {
         
         const result : any = await this.subCategoryService.deleteSubCategoryOption(id,subCategoryId,optionId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
-    @Post(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_NO_PARAM)
+    @Post(DESKTOP_ROUTES.SUB_CATEGORIES)
     async AddSubCategoryImageApi(
         @Body() body: SubCatImageCreateDto,
         @Param('subCategoryId') subCategoryId: string,
@@ -163,11 +162,11 @@ class SubCategoryController {
         @Response() res: any
     ) : Promise< SubCatImageCreateDto> {
         const result :  any = await this.subCategoryService.addSubCategoryImage(body,id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM)
+    @Get([DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM, MOBILE_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM])
     async GetOneSubCategoryImageApi(
         @Body() body: any,
         @Param('subCategoryId') subCategoryId: string,
@@ -176,11 +175,11 @@ class SubCategoryController {
         @Response() res: any
     ) : Promise< any> {
         const result :  any = await this.subCategoryService.getSubCategoryImage(id,subCategoryId,imageId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @PublicRoute()
-    @Get(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_NO_PARAM)
+    @Get([DESKTOP_ROUTES.SUB_CATEGORY_IMAGES, MOBILE_ROUTES.SUB_CATEGORY_IMAGES])
     async GetSubCategoryImagesApi(
         @Body() body: any,
         @Param('subCategoryId') subCategoryId: string,
@@ -188,7 +187,7 @@ class SubCategoryController {
         @Response() res: any
     ) : Promise< any> {
         const result :  any = await this.subCategoryService.getSubCategoryImages(id,subCategoryId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM)
@@ -200,7 +199,7 @@ class SubCategoryController {
         @Response() res: any
     ) : Promise< any> {
         const result :  any = await this.subCategoryService.deleteSubCategoryImage(id,subCategoryId,imageId);
-        return res.status(result.statusCode).json(result.data);
+        return res.status(result.statusCode).json(result);
     }
 }
 export default SubCategoryController;

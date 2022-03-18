@@ -183,6 +183,7 @@ export class ProductService {
           relations: [
             'subCategory',
             'options',
+            'options.subCatOption',
             'images',
             'variants',
             'variants.options',
