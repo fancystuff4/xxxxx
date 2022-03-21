@@ -15,7 +15,7 @@ export class BrandService {
     }
 
     async getBrands() {    
-      const result : any = await InvokeAPI(`/brands`, 'get',undefined , undefined, 2000);
+      const result : any = await InvokeAPI(`/brands`, 'get',undefined , undefined, 3000);
       return result;
     }
 
