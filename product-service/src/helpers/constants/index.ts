@@ -12,6 +12,11 @@ export enum AddOrReplace {
   REPLACE = 'REPLACE',
 }
 
+export enum OPTION_ACTION_TYPES {
+  ADD = 'ADD',
+  REMOVE = 'REMOVE',
+}
+
 export interface ValidateInterface {
   isValid: boolean;
 }

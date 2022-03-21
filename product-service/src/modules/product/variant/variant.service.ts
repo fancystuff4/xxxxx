@@ -23,31 +23,44 @@ export class VariantService {
     private variantImageRepository: Repository<VariantImage>,
   ) {}
 
+  getNewVariantAndOptionsArray(
+    productId: string,
+    variantsObjArray: VariantAndOptionCreateDto[],
+  ): {
+    newVariantsArray: Variant[];
+    optionsArray: VariantOption[];
+  } {
+    const newVariantsArray: Variant[] = [];
+    const optionsArray: VariantOption[] = [];
+    variantsObjArray.forEach((obj) => {
+      let newVariant = new Variant();
+      const { options, ...variantAttrs } = obj;
+
+      newVariant = {
+        ...newVariant,
+        ...variantAttrs,
+        productId,
+      };
+
+      newVariantsArray.push(newVariant);
+
+      options.forEach((option) => {
+        let newOption = new VariantOption();
+        newOption = { ...newOption, ...option, variant: newVariant };
+        optionsArray.push(newOption);
+      });
+    });
+
+    return { newVariantsArray, optionsArray };
+  }
+
   async createVariants(
     productId: string,
     variantsObjArray: VariantAndOptionCreateDto[],
   ) {
     try {
-      const newVariantsArray: Variant[] = [];
-      const optionsArray: VariantOption[] = [];
-      variantsObjArray.forEach((obj) => {
-        let newVariant = new Variant();
-        const { options, ...variantAttrs } = obj;
-
-        newVariant = {
-          ...newVariant,
-          ...variantAttrs,
-          productId,
-        };
-
-        newVariantsArray.push(newVariant);
-
-        options.forEach((option) => {
-          let newOption = new VariantOption();
-          newOption = { ...newOption, ...option, variant: newVariant };
-          optionsArray.push(newOption);
-        });
-      });
+      const { newVariantsArray, optionsArray } =
+        this.getNewVariantAndOptionsArray(productId, variantsObjArray);
 
       await this.variantRepository.save(newVariantsArray);
       await this.variantOptRepository.save(optionsArray);
@@ -299,6 +312,28 @@ export class VariantService {
       });
 
       if (affected < 1) throw internalErrMsg();
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
+  async getVariantWithValue(
+    productId: string,
+    subCatOptionId: string,
+    values: string[],
+  ): Promise<Variant[]> {
+    try {
+      const relevantVariants = await this.variantRepository
+        .createQueryBuilder('variant')
+        .innerJoinAndSelect('variant.options', 'variantOption')
+        .where('variant.productId = :productId', { productId })
+        .andWhere('variantOption.subCatOptionId = :subCatOptionId', {
+          subCatOptionId,
+        })
+        .andWhere('variantOption.value In (:...values)', { values })
+        .getMany();
+
+      return relevantVariants;
     } catch (error) {
       throwError(error);
     }
