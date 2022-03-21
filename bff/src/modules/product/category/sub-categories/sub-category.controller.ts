@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Response, Param,Delete,Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, UseGuards } from '@nestjs/common';
 import { SubCategoryService } from './sub-category.service';
 import { SubCatCreateDto,SubCatUpdateDto } from './dto/sub-category.dto';
 import { UpdateSubCatStatusDto } from './dto/sub-category.status.dto';
@@ -7,8 +7,10 @@ import { SubCatOptCreateDto, SubCatOptUpdateDto } from './dto/sub-category.optio
 import { UpdateSubCatOptionStatusDto } from './dto/sub-category.option.status.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
+@UseGuards(AuthGuard)
 class SubCategoryController {
 
     constructor(private subCategoryService: SubCategoryService) {}

@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Post, Response, Param,Delete,Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, UseGuards } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryCreateDto,CategoryUpdateDto } from './dto/category.dto';
 import { UpdateCategoryStatusDto } from './dto/category.status.dto';
 import { CategoryImageCreateDto, CategoryImageUpdateDto } from './dto/category.image.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
+@UseGuards(AuthGuard)
 class CategoryController {
     constructor(private categoryService: CategoryService) {}
 

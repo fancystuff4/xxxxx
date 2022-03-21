@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, Response, Param,Delete,Put, Query } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, Query, UseGuards } from '@nestjs/common';
 import { ProductService } from './product.service';
 import { ProductCreateDto } from './dto/product.dto';
 import { UpdateProductStatusDto } from './dto/product.status.dto';
@@ -6,8 +6,10 @@ import { ProductImageCreateDto } from './dto/product.image.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PaginationDto } from './dto/product.paginate.dto';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
+@UseGuards(AuthGuard)
 class ProductController {
     constructor(private productService: ProductService) {}
 

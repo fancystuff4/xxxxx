@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Post, Response, Param,Delete,Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, UseGuards } from '@nestjs/common';
 import { BrandService } from './brand.service';
 import { BrandInputDto,UpdateBrandDto } from './dto/brand.dto';
 import { BrandLogoDto,BrandLogoUpdateDto } from './dto/brand.logo.dto';
 import { UpdateBrandStatusDto} from './dto/brand.status.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
+@UseGuards(AuthGuard)
 class BrandController {
     constructor(private brandService: BrandService) {}
 

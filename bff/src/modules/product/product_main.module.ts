@@ -9,11 +9,7 @@ import { VariantModule } from './product/variant/variant.module';
 import { ProductModule } from './product/product.module';
 
 @Module({
-    imports: [BrandModule, CategoryModule, SubCategoryModule, VariantModule, ProductModule],
-    providers: [AuthenticationService, {
-        provide: APP_GUARD,
-        useClass: AuthGuard,
-    }]
+    imports: [BrandModule, CategoryModule, SubCategoryModule, VariantModule, ProductModule]
 })
 
 export class ProductMainModule{};

@@ -1,12 +1,14 @@
-import { Body, Controller, Get, Post, Response, Param,Delete,Put } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Param,Delete,Put, UseGuards } from '@nestjs/common';
 import { VariantService } from './variant.service';
 import { VariantUpdateDto } from './dto/variant.dto';
 import { UpdateVariantStatusDto } from './dto/variant.status.dto';
 import { VariantImageCreateDto } from './dto/variant.image.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
+import { AuthGuard } from 'src/common/guards/auth.guard';
 
 @Controller()
+@UseGuards(AuthGuard)
 class VariantController {
     constructor(private variantService: VariantService) {}
 
