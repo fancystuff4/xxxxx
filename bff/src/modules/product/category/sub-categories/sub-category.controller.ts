@@ -8,6 +8,8 @@ import { UpdateSubCatOptionStatusDto } from './dto/sub-category.option.status.dt
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller()
 @UseGuards(AuthGuard)
@@ -15,6 +17,7 @@ class SubCategoryController {
 
     constructor(private subCategoryService: SubCategoryService) {}
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.SUB_CATEGORIES)
     async CreateSubCategoryApi(
         @Body() body: SubCatCreateDto,
@@ -47,6 +50,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
     async DeleteSubCategoryApi(
         @Response() res: any,
@@ -58,6 +62,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_WITH_PARAM)
     async UpdateSubCategoryApi(
         @Response() res: any,
@@ -70,6 +75,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.SUB_CATEGORY_STATUS)
     async UpdateSubCategoryStatusApi(
         @Body() body: UpdateSubCatStatusDto,
@@ -82,6 +88,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.OPTIONS)
     async CreateSubCategoryOptionsApi(
         @Body() body: SubCatOptCreateDto,
@@ -92,6 +99,7 @@ class SubCategoryController {
         const result :  any = await this.subCategoryService.addSubCategoryOption(body,id,subCategoryId);
         return res.status(result.statusCode).json(result);
     }
+
 
     @PublicRoute()
     @Get([DESKTOP_ROUTES.OPTION_WITH_PARAM, MOBILE_ROUTES.OPTION_WITH_PARAM])
@@ -118,6 +126,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.OPTIONS)
     async UpdateSubCategoryOptionApi(
         @Body() body: SubCatOptUpdateDto,
@@ -131,6 +140,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.OPTION_STATUS)
     async UpdateSubCategoryOptionStatusApi(
         @Body() body: UpdateSubCatOptionStatusDto,
@@ -144,6 +154,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.OPTION_WITH_PARAM)
     async DeleteSubCategoryOptionApi(
         @Response() res: any,
@@ -156,6 +167,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.SUB_CATEGORIES)
     async AddSubCategoryImageApi(
         @Body() body: SubCatImageCreateDto,
@@ -166,6 +178,7 @@ class SubCategoryController {
         const result :  any = await this.subCategoryService.addSubCategoryImage(body,id,subCategoryId);
         return res.status(result.statusCode).json(result);
     }
+
 
     @PublicRoute()
     @Get([DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM, MOBILE_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM])
@@ -192,6 +205,7 @@ class SubCategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.SUB_CATEGORY_IMAGE_WITH_PARAM)
     async DeleteSubCategoryImageApi(
         @Body() body: any,

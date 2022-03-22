@@ -6,12 +6,15 @@ import { VariantImageCreateDto } from './dto/variant.image.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller()
 @UseGuards(AuthGuard)
 class VariantController {
     constructor(private variantService: VariantService) {}
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.VARIANT_WITH_PARAM)
     async UpdateVariantApi(
         @Body() body: VariantUpdateDto,
@@ -24,6 +27,7 @@ class VariantController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.VARIANT_STATUS)
     async UpdateVariantStatusApi(
         @Param('variantId') variantId: UpdateVariantStatusDto,
@@ -61,6 +65,7 @@ class VariantController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.VARIANT_WITH_PARAM)
     async DeleteVariantApi(
         @Response() res: any,
@@ -87,6 +92,7 @@ class VariantController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.VARIANT_IMAGES)
     async AddVariantImageApi(
         @Body() body: VariantImageCreateDto,
@@ -113,6 +119,7 @@ class VariantController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.VARIANT_IMAGES_WITH_PARAM)
     async DeleteVariantImageApi(
         @Response() res: any,

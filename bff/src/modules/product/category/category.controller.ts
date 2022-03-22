@@ -6,12 +6,15 @@ import { CategoryImageCreateDto, CategoryImageUpdateDto } from './dto/category.i
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller()
 @UseGuards(AuthGuard)
 class CategoryController {
     constructor(private categoryService: CategoryService) {}
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.CATEGORIES)
     async CreateCategoryApi(
         @Body() body: CategoryCreateDto,
@@ -41,6 +44,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.CATEGORY_WITH_PARAM)
     async DeleteCategoryApi(
         @Response() res: any,
@@ -51,6 +55,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.CATEGORY_WITH_PARAM)
     async UpdateCategoryApi(
         @Response() res: any,
@@ -62,6 +67,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.CATEGORY_STATUS)
     async UpdateCategoryStatusApi(
         @Body() body: UpdateCategoryStatusDto,
@@ -73,6 +79,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.CATEGORY_IMAGES)
     async AddCategoryImageApi(
         @Body() body: CategoryImageCreateDto,
@@ -104,6 +111,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_PARAM)
     async UpdateCategoryImageApi(
         @Param('id') id: string,
@@ -115,6 +123,7 @@ class CategoryController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.CATEGORY_IMAGE_WITH_PARAM)
     async DeleteCategoryImageApi(
         @Param('id') id: string,

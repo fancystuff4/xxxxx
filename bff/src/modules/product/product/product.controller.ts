@@ -7,12 +7,15 @@ import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PaginationDto } from './dto/product.paginate.dto';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller()
 @UseGuards(AuthGuard)
 class ProductController {
     constructor(private productService: ProductService) {}
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.PRODUCTS)
     async CreateProductApi(
         @Body() body: ProductCreateDto,
@@ -56,6 +59,7 @@ class ProductController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.PRODUCT_WITH_PARAM)
     async DeleteProductApi(
         @Response() res: any,
@@ -67,7 +71,7 @@ class ProductController {
         return res.status(result.statusCode).json(result);
     }
 
-    
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.PRODUCT_STATUS)
     async UpdateProductStatusApi(
         @Body() body: UpdateProductStatusDto,
@@ -80,6 +84,7 @@ class ProductController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.PRODUCT_IMAGES)
     async AddProductImagesApi(
         @Body() body: ProductImageCreateDto,
@@ -116,6 +121,7 @@ class ProductController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.PRODUCT_IMAGE_WITH_PARAM)
     async DeleteProductImageApi(
         @Response() res: any,

@@ -6,12 +6,15 @@ import { UpdateBrandStatusDto} from './dto/brand.status.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from '../routes';
 import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
+import { Roles } from 'src/common/decorators/roles.decorator';
+import { Role } from 'src/common/enums/role.enum';
 
 @Controller()
 @UseGuards(AuthGuard)
 class BrandController {
     constructor(private brandService: BrandService) {}
 
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.BRANDS)
     async CreateBrandApi(
         @Body() body: BrandInputDto,
@@ -41,6 +44,7 @@ class BrandController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.BRAND_WITH_PARAM)
     async DeleteBrandApi(
         @Response() res: any,
@@ -51,6 +55,7 @@ class BrandController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.BRAND_WITH_PARAM)
     async UpdateBrandApi(
         @Response() res: any,
@@ -62,6 +67,7 @@ class BrandController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.BRAND_STATUS)
     async UpdateBrandStatusApi(
         @Body() body: UpdateBrandStatusDto,
@@ -72,7 +78,8 @@ class BrandController {
         const result : any = await this.brandService.updateBrandStatus(body,id);
         return res.status(result.statusCode).json(result);
     }
-
+    
+    @Roles(Role.Tenant)
     @Post(DESKTOP_ROUTES.BRAND_LOGOS)
     async AddBrandLogoApi(
         @Body() body: BrandLogoDto,
@@ -93,6 +100,7 @@ class BrandController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Put(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
     async UpdateBrandLogoApi(
         @Response() res: any,
@@ -105,6 +113,7 @@ class BrandController {
         return res.status(result.statusCode).json(result);
     }
 
+    @Roles(Role.Tenant)
     @Delete(DESKTOP_ROUTES.BRAND_LOGO_WITH_PARAM)
     async DeleteBrandLogoApi(
         @Response() res: any,
