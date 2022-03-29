@@ -7,10 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('Bff Apis')
-    .setDescription('Bff Api Description')
+    .setTitle('Ecommerce Backend For Frontend')
+    .setDescription('This is the Api documentation for all the routes of BFF')
     .setVersion('1.0')
-    .addTag('bff')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
