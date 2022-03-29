@@ -5,4 +5,5 @@ export enum MAIN_ROUTES {
     SUB_CATEGORY="subcategories",
     PRODUCT = "products",
     VARIANT = "variants",
+    CART="cart",
 }
