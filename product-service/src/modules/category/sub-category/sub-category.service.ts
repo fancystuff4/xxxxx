@@ -116,6 +116,7 @@ export class SubCategoryService {
           order: {
             name: 'ASC',
           },
+          where: { categoryId },
           relations: ['category', 'images', 'options'],
         };
 

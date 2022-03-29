@@ -74,6 +74,7 @@ export class SubCategoryController {
     @Query() { limit, offset, ids }: PaginationDto,
     @Res() res: Response,
   ): Promise<void> {
+    console.log(category.id);
     const subCategories = await this.subCatService.getSubCategories(
       category.id,
       { limit, offset, ids },

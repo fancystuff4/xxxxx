@@ -8,7 +8,9 @@ import { PublicRoute } from 'src/common/decorators/publicRoute.decorator';
 import { AuthGuard } from 'src/common/guards/auth.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('Product Variant')
 @Controller()
 @UseGuards(AuthGuard)
 class VariantController {

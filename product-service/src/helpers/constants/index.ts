@@ -27,6 +27,7 @@ export type paginationOrIds =
       skip?: number;
       order: objType<string>;
       relations: string[];
+      where?: objType<string>;
     }
   | {
       id: FindOperator<any>;
