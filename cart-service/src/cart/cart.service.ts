@@ -1,22 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { CartDto } from './dto/createCart.dto';
+import { AddToCartDto } from './dto/createCart.dto';
 import { CartRepository } from './cart.respository';
 
 @Injectable()
 export class CartService {
     constructor(private cartRepository: CartRepository) {}
 
-    async insertIntoCart(cartDto: CartDto, sessionUserId: string) {
+    async insertIntoCart(cartDto, sessionUserId: string) {
         const createdCart = await this.cartRepository.insertIntoCart(cartDto, sessionUserId);
         return createdCart;
     }
 
-    async insertIntoCartItems(cartDto: CartDto, cartID: string) {
+    async insertIntoCartItems(cartDto: AddToCartDto, cartID: string) {
         const updatedCart = await this.cartRepository.insertIntoCartItems(cartDto, cartID);
         return updatedCart;
     }
 
-    async updateItemInCart(cartDto: CartDto, cartID: string, userCartItems: any[]) {
+    async updateItemInCart(cartDto: AddToCartDto, cartID: string, userCartItems: any[]) {
         const updatedCart = await this.cartRepository.updateItemInCart(cartDto, cartID, userCartItems);
         return updatedCart;
     }
@@ -48,5 +48,9 @@ export class CartService {
     
     async deleteCart(cartID: string) {
         await this.cartRepository.deleteCart(cartID);
+    }
+
+    async assignAnonymousCart(cartID: string) {
+        await this.cartRepository.assignAnonymousCart(cartID);
     }
 }

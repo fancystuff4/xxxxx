@@ -8,6 +8,7 @@ import { AppModule } from './app.module';
 
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express'
+import { ValidationPipe } from '@nestjs/common';
 // NOTE: If you get ERR_CONTENT_DECODING_FAILED in your browser, this is likely
 // due to a compressed response (e.g. gzip) which has not been handled correctly
 // by aws-serverless-express and/or API Gateway. Add the necessary MIME types to
@@ -35,6 +36,8 @@ async function bootstrapServer(): Promise<Server> {
             const nestApp = await NestFactory.create(AppModule, new ExpressAdapter(expressApp));
             nestApp.use(cookieParser());
             nestApp.use(eventContext());
+            nestApp.useGlobalPipes(new ValidationPipe({whitelist: true,
+            }))
             await nestApp.init();
             cachedServer = createServer(expressApp, undefined, binaryMimeTypes);
         } catch (error) {

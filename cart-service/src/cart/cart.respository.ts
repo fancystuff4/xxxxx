@@ -1,4 +1,4 @@
-import { CartDto } from './dto/createCart.dto';
+import { AddToCartDto } from './dto/createCart.dto';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import client from '../db/client';
@@ -7,22 +7,21 @@ import { type } from 'os';
 export class CartRepository {
     constructor() {}
 
-    async insertIntoCart(cartDto: CartDto, sessionUserId: string) {
-        const cartItem = cartDto;
+    async insertIntoCart(cartDto: AddToCartDto, sessionUserId: string) {
+        var cartData =[];
+       for(var i =0;i<cartDto.cartData.length;i++){
+        cartData.push({ 
+            lineItemID: uuid(),
+            itemDetails: cartDto['cartData'][i]
+        })
+       }
         const date = new Date();
-        const totalPrice = cartDto.quantity * cartDto.variant.price;
-        cartDto['totalPrice'] = totalPrice;
         const newCart = {
             id: uuid(),
             userID: sessionUserId,
             createdAt: date.toString(),
             updatedAt: date.toString(),
-            items: [
-                {
-                    lineItemID: uuid(),
-                    itemDetails: cartItem
-                }
-            ]
+            items: cartData
         };
         try {
             await client
@@ -37,12 +36,10 @@ export class CartRepository {
         return { ok: true, data: newCart};
     }
 
-    async insertIntoCartItems(cartDto: CartDto, cartID: string) {
-        const totalPrice = cartDto.quantity * cartDto.variant.price;
-        cartDto['totalPrice'] = totalPrice;
+    async insertIntoCartItems(cartDto: AddToCartDto, cartID: string) {
         const lineItem = {
             lineItemID: uuid(),
-            itemDetails: cartDto
+            itemDetails: cartDto['cartData']
         };
         const updatedDate = new Date();
         const params = {
@@ -66,14 +63,13 @@ export class CartRepository {
         }
     }
 
-    async updateItemInCart(cartDto: CartDto, cartID: string, userCartItems: any[]) {
+    async updateItemInCart(cartDto: AddToCartDto, cartID: string, userCartItems: any[]) {
         let index: number;
         let itemToBeModified = userCartItems.find((item, i) => {
             index = i;
-            return item.itemDetails.variant.variantID === cartDto.variant.variantID;
+            return item.itemDetails.variant.variantID === cartDto['cartData'].variant.variantID;
         });
-        itemToBeModified.itemDetails.quantity += cartDto.quantity;
-        itemToBeModified.itemDetails.totalPrice = itemToBeModified.itemDetails.quantity * cartDto.variant.price;
+        itemToBeModified.itemDetails.quantity += cartDto['cartData'].quantity;
         let updatedDate = new Date();
         const params = {
             TableName: 'CartTable-dev',
@@ -110,7 +106,7 @@ export class CartRepository {
             return { ok: false };
         }
         itemToBeModified.itemDetails.quantity = quantity;
-        itemToBeModified.itemDetails.totalPrice = itemToBeModified.itemDetails.variant.price * quantity;
+        // itemToBeModified.itemDetails.totalPrice = itemToBeModified.itemDetails.variant.price * quantity;
         const updatedDate = new Date();
         const params = {
             TableName: 'CartTable-dev',
@@ -208,6 +204,18 @@ export class CartRepository {
     }
 
     async deleteCart(cartID: string) {
+        const params = {
+            TableName: 'CartTable-dev',
+            Key: { id: cartID }
+        };
+        try {
+            await client.delete(params).promise();
+        } catch (error) {
+            throw new InternalServerErrorException(error);
+        }
+    }
+
+    async assignAnonymousCart(cartID: string) {
         const params = {
             TableName: 'CartTable-dev',
             Key: { id: cartID }
