@@ -9,8 +9,7 @@ import { CartService } from './cart.service';
     controllers: [CartController],
     providers: [
         CartService,AuthenticationService
-    ],
-    exports: [CartService]
+    ]
 })
 
 export class CartModule{};

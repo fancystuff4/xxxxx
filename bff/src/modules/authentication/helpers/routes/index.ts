@@ -4,10 +4,6 @@ export enum DESKTOP_ROUTES {
     PROFILE = "desktop/profile",
     REFRESH = "desktop/refresh",
     LOGOUT = "desktop/logout",
-
-    CART = "desktop/user/:userId/cart",
-    CART_ADD = "desktop/cart",
-    CART_REMOVE = "desktop/users/:userId/cart/:cartId/items/:lineItemId",
 }
 
 export enum MOBILE_ROUTES {
