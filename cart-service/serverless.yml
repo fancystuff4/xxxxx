@@ -1,0 +1,71 @@
+service:
+    name: cart-service
+
+plugins:
+    - serverless-plugin-typescript
+    - serverless-plugin-optimize
+    - serverless-offline
+
+provider:
+    name: aws
+    tracing:
+        apiGateway: true
+    runtime: nodejs14.x
+    memorySize: 256
+    stage: dev
+    region: us-east-1
+    environment:
+        ORDERS_TABLE_NAME: ${self:custom.CartTable.name}
+    iamRoleStatements:
+        -   Effect: Allow
+            Action:
+                - dynamodb:PutItem
+                - dynamodb:Scan
+                - dynamodb:GetItem
+                - dynamodb:UpdateItem
+                - dynamodb:DeleteItem
+                - dynamodb:Query
+            Resource:
+                - ${self:custom.CartTable.arn}
+                - !Join ['/', [ '${self:custom.CartTable.arn}', 'index', 'userID-index' ]]
+
+package:
+    individually: true
+
+resources:
+    Resources:
+        CartTable:
+          Type: AWS::DynamoDB::Table
+          Properties:
+            TableName: CartTable-dev
+            BillingMode: PAY_PER_REQUEST
+            AttributeDefinitions:
+              - AttributeName: id
+                AttributeType: S
+              - AttributeName: userID
+                AttributeType: S
+            KeySchema:
+              - AttributeName: id
+                KeyType: HASH
+            #   - AttributeName: userID
+            #     KeyType: RANGE
+            GlobalSecondaryIndexes:
+              - IndexName: userID-index
+                KeySchema:
+                  - AttributeName: userID
+                    KeyType: HASH
+                Projection:
+                    ProjectionType: ALL
+                # IndexArn: !Join ['/', [ '${self:custom.CartTable.arn}', 'index', 'userID-index' ]]
+
+functions:
+    main:
+        handler: src/main.handler
+        events:
+          - http:
+              method: any
+              path: /{proxy+}
+custom:
+    CartTable:
+        name: !Ref CartTable
+        arn: !GetAtt CartTable.Arn
