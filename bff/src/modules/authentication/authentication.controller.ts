@@ -7,7 +7,8 @@ import { DESKTOP_ROUTES, MOBILE_ROUTES } from "./helpers/routes";
 import { ProfileWrapperDto } from "./helpers/dto/profile_wrapper.dto";
 import { RequestedHeaderDto } from "src/common/dto/requested_header.dto";
 import { plainToClass } from "class-transformer";
-
+import { ApiTags } from "@nestjs/swagger";
+@ApiTags('Authentication')
 @Controller(MAIN_ROUTES.AUTH)
 class AuthenticationController {
 

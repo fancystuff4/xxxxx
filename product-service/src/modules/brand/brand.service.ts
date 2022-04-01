@@ -64,10 +64,12 @@ export class BrandService {
       take?: number;
       skip?: number;
       order: objType<string>;
+      relations: string[];
     } = {
       order: {
         name: 'ASC',
       },
+      relations: ['logos']
     };
 
     if (limitIsValidNumber) params.take = limit;

@@ -2,6 +2,8 @@ import { Injectable, CanActivate, ExecutionContext, Inject, HttpException, Inter
 import { Reflector } from "@nestjs/core";
 import { Observable } from "rxjs";
 import { AuthenticationService } from "src/modules/authentication/authentication.service";
+import { ROLES_KEY } from "../decorators/roles.decorator";
+import { Role } from "../enums/role.enum";
 
 @Injectable()
 export class AuthGuard implements CanActivate {
@@ -20,14 +22,23 @@ export class AuthGuard implements CanActivate {
             context.getHandler(),
             context.getClass(),
           ]);
+          const requiredRoles = this.reflector.getAllAndOverride<Role[]>(ROLES_KEY, [
+            context.getHandler(),
+            context.getClass(),
+          ]);
+
         if (isPublicRoute) return true;
 
         const request = context.switchToHttp().getRequest();
         const requestedHeader = {
             'authorization' : `${request.headers.authorization}`
         }
-        return this.authenticationService.verifyToken(requestedHeader).then(response => {
-            return true;
+        return this.authenticationService.getProfile(requestedHeader).then(response => {
+            if(!requiredRoles){
+                return true;
+            }
+            return requiredRoles.some((role) =>response.data.role?.includes(role));
+
         })
         
     }
