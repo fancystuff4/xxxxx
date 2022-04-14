@@ -1,7 +1,8 @@
 import { Body, Controller, Get, Post, Response, Request,Param } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { HttpService } from '@nestjs/axios';
-import { CreateOrderDto } from './dto/order.dto';
+import { CreateOrderDto } from './helper/dto/order.dto';
+import { DESKTOP_ROUTES } from './helper/routes';
 // import { LogoutDto, LogoutResponseDto } from './dto/logout.dto';
 // import { GetRefreshTokenDto, GetRefreshTokenResponseDto } from './dto/refresh.dto';
 // import { ErrorDto, ErrorResponseDto } from './dto/error.dto';
@@ -10,11 +11,12 @@ import { CreateOrderDto } from './dto/order.dto';
 // import { RequestedHeaderDto } from './dto/requestedHeader.dto';
 // import { SigninInputDto, SignupInputDto } from './dto/userDetailsInput.dto';
 
+
 @Controller('desktop')
 class OrderController {
     constructor(private orderService: OrderService, private httpService: HttpService) {}
 
-    @Post('customers/:customerId/orders')
+    @Post(DESKTOP_ROUTES.CREATE_ORDER)
     async CreateOrderAPI(
         @Body() body: CreateOrderDto,
         @Param('customerId') customerId: string,
@@ -24,7 +26,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('orders/:id')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BY_ID)
     async GetOrderByIdApi(
         @Param('id') id: string,
         @Response() res: any
@@ -33,7 +35,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('customers/:customerId/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BY_CUSOTOMER_ID)
     async GetOrderByCustomerIdApi(
         @Param('customerId') customerId: string,
         @Response() res: any
@@ -42,7 +44,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('orderStatus/:status/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BY_ORDER_STATUS)
     async GetOrderByOrderStatusApi(
         @Param('status') status: string,
         @Response() res: any
@@ -51,7 +53,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('orders')
+    @Get(DESKTOP_ROUTES.GET_ALL_ORDERS)
     async GetAllOrdersApi(
         @Response() res: any
     ) : Promise<void> {
@@ -59,7 +61,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('from/:from/to/:to/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BETWEEN_DATES)
     async GetOrdersBetweenDatesApi(
         @Response() res: any, 
         @Param('from') from: string,
@@ -69,7 +71,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('from/:from/to/:to/customers/:customerId/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BETWEEN_DATES_AND_CUSTOMER_ID)
     async GetOrdersByDateRangeAndCustomerIdApi(
         @Response() res: any, 
         @Param('from') from: string,
@@ -80,7 +82,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('date/:date/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BY_DATE)
     async GetOrdersByDateApi(
         @Response() res: any, 
         @Param('date') date: string,
@@ -89,7 +91,7 @@ class OrderController {
         return res.status(result.statusCode).json(result.data);
     }
 
-    @Get('date/:date/customer/:customerId/orders')
+    @Get(DESKTOP_ROUTES.GET_ORDER_BY_DATE_AND_CUSTOMER_ID)
     async GetOrdersByDateAndCustomerIdApi(
         @Response() res: any, 
         @Param('date') date: string,
