@@ -1,7 +1,7 @@
 import { Controller, Post, Body, Res, HttpStatus, Get, Req, Param, Patch, Delete, UseGuards } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { CartService } from './cart.service';
-import { AddToCartDto } from './dto/createCart.dto';
+import { CartDto } from './dto/createCart.dto';
 import { UpdateCartDto } from './dto/updateCart.dto';
 
 @Controller()
@@ -253,7 +253,7 @@ export class CartController {
     }
     
     @Post('addtocart')
-    async addToCart(@Body() body: AddToCartDto, @Res() res: Response, @Req() req: Request) {
+    async addToCart(@Body() body: CartDto, @Res() res: Response, @Req() req: Request) {
         const userCart = await this.cartService.findUserCart(body.userId);
         if(!userCart){
             const newCart: any = await this.cartService.insertIntoCart(body, body.userId);
@@ -270,7 +270,7 @@ export class CartController {
                 });
             }
         } else { 
-            const itemExistsInCart = this.cartService.findItemInCart(userCart.items, body.cartData.variant.variantID);
+            const itemExistsInCart = this.cartService.findItemInCart(userCart.items, body.variant.variantID);
             var updatedCart: any;
             if(itemExistsInCart) { 
                 updatedCart = await this.cartService.updateItemInCart(body, userCart.id, userCart.items);
@@ -302,9 +302,6 @@ export class CartController {
                 }
             }
         }
-        
-        
-        
         
     }
 }

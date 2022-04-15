@@ -1,20 +1,18 @@
-import { AddToCartDto } from './dto/createCart.dto';
 import { InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { v4 as uuid } from 'uuid';
 import client from '../db/client';
 import { type } from 'os';
+import { CartDto } from './dto/createCart.dto';
 
 export class CartRepository {
     constructor() {}
 
-    async insertIntoCart(cartDto: AddToCartDto, sessionUserId: string) {
+    async insertIntoCart(cartDto: CartDto, sessionUserId: string) {
         var cartData =[];
-       for(var i =0;i<cartDto.cartData.length;i++){
         cartData.push({ 
             lineItemID: uuid(),
-            itemDetails: cartDto['cartData'][i]
+            itemDetails: cartDto
         })
-       }
         const date = new Date();
         const newCart = {
             id: uuid(),
@@ -36,10 +34,10 @@ export class CartRepository {
         return { ok: true, data: newCart};
     }
 
-    async insertIntoCartItems(cartDto: AddToCartDto, cartID: string) {
+    async insertIntoCartItems(cartDto: CartDto, cartID: string) {
         const lineItem = {
             lineItemID: uuid(),
-            itemDetails: cartDto['cartData']
+            itemDetails: cartDto
         };
         const updatedDate = new Date();
         const params = {
@@ -63,13 +61,13 @@ export class CartRepository {
         }
     }
 
-    async updateItemInCart(cartDto: AddToCartDto, cartID: string, userCartItems: any[]) {
+    async updateItemInCart(cartDto: CartDto, cartID: string, userCartItems: any[]) {
         let index: number;
         let itemToBeModified = userCartItems.find((item, i) => {
             index = i;
-            return item.itemDetails.variant.variantID === cartDto['cartData'].variant.variantID;
+            return item.itemDetails.variant.variantID === cartDto.variant.variantID;
         });
-        itemToBeModified.itemDetails.quantity += cartDto['cartData'].quantity;
+        itemToBeModified.itemDetails.quantity = cartDto.quantity;
         let updatedDate = new Date();
         const params = {
             TableName: 'CartTable-dev',
