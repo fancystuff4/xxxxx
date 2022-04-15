@@ -1,7 +1,7 @@
 import { IsArray, IsNotEmpty, IsNumber, IsObject, IsOptional, IsUUID, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 
-export class optionsObj{
+export class OptionsObj{
     @IsNotEmpty()
     name: string
 
@@ -14,7 +14,7 @@ export class optionsObj{
     
 }
 
-export class variantObj{
+export class VariantObj{
     @IsNotEmpty()
     variantID: string
 
@@ -24,11 +24,12 @@ export class variantObj{
 
     @IsArray()
     @ValidateNested({ each: true })
-    @Type(() => optionsObj)
-    options:optionsObj[]
+    @Type(() => OptionsObj)
+    options:OptionsObj[]
 }
 
-export class cartDto{
+export class CartDto{
+
     @IsNotEmpty()
     @IsNumber()
     quantity: number;
@@ -41,22 +42,9 @@ export class cartDto{
 
     @IsObject()
     @ValidateNested({ each: true })
-    @Type(() => variantObj)
-    variant: variantObj
+    @Type(() => VariantObj)
+    variant: VariantObj
 
-
-}
-
-export class AddToCartDto{
-    @IsNotEmpty()
-    @ValidateNested({ each: true })
-    @IsArray()
-    @Type(() => cartDto)
-    cartData:cartDto
-
-    @IsUUID()
-    @IsNotEmpty()
-    userId:string
 }
 
 

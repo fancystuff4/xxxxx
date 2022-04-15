@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "setup:dynamodb": "node create-tables-locally.js",
+    "dc-up": "docker-compose up -d",
+    "dc-down": "docker-compose down",
     "prebuild": "rimraf dist",
     "build": "tsc -p tsconfig.build.json",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",

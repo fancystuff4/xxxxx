@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { AddToCartDto } from './dto/createCart.dto';
 import { CartRepository } from './cart.respository';
+import { CartDto } from './dto/createCart.dto';
 
 @Injectable()
 export class CartService {
@@ -11,12 +11,12 @@ export class CartService {
         return createdCart;
     }
 
-    async insertIntoCartItems(cartDto: AddToCartDto, cartID: string) {
+    async insertIntoCartItems(cartDto: CartDto, cartID: string) {
         const updatedCart = await this.cartRepository.insertIntoCartItems(cartDto, cartID);
         return updatedCart;
     }
 
-    async updateItemInCart(cartDto: AddToCartDto, cartID: string, userCartItems: any[]) {
+    async updateItemInCart(cartDto: CartDto, cartID: string, userCartItems: any[]) {
         const updatedCart = await this.cartRepository.updateItemInCart(cartDto, cartID, userCartItems);
         return updatedCart;
     }
