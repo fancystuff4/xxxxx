@@ -62,7 +62,6 @@ class VariantController {
         @Param('variantId') variantId: string,
         @Param('productId') productId: string,
     ) : Promise<any> {
-        
         const result : any = await this.variantService.getVariant(subCategoryId,productId,variantId);
         return res.status(result.statusCode).json(result);
     }

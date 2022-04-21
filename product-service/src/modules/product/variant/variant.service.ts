@@ -167,6 +167,23 @@ export class VariantService {
     }
   }
 
+  async getSingleVariant(
+    productId: string,
+    variantId: string,
+  ): Promise<Variant> {
+    try {
+      const variant = await this.validateSingleVariantAndReturn({
+        id: variantId,
+        productId,
+      }, {
+        relations: ['product', 'options', 'options.subCatOption', 'images'],
+      });
+      return variant;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
   async deleteVariantById(productId: string, variantId: string): Promise<void> {
     try {
       const { isValid } = await this.validateVariantsAndReturn({
@@ -360,4 +377,26 @@ export class VariantService {
       throwError(error);
     }
   }
+
+  async validateSingleVariantAndReturn(
+    conditionObj: objType<any>,
+    options?: { relations: string[] },
+  ): Promise<any> {
+    try {
+      const input: {
+        where: objType<any>;
+        relations?: string[];
+      } = {
+        where: conditionObj,
+      };
+
+      if (!_isEmpty(options?.relations)) input.relations = options.relations;
+
+      const variants = await this.variantRepository.findOne(input);
+      return variants;
+    } catch (error) {
+      throwError(error);
+    }
+  }
+
 }
