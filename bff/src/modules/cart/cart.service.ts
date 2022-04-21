@@ -5,27 +5,21 @@ import { AuthenticationService } from "src/modules/authentication/authentication
 
 @Injectable()
 export class CartService {
-    
-    constructor(private httpService: HttpService,private authService: AuthenticationService) {}
-    
+        
     async getUserCart(userId): Promise<any> {   
-      return await InvokeAPI(`/dev/users/${userId}/cart`, 'get', undefined, undefined, 3000);
+      return await InvokeAPI(`/users/${userId}/cart`, 'get', undefined, undefined, 3001);
     }
     
     async removeUserCartItem(userID,cartID,lineItemID): Promise<any> {      
-      return await InvokeAPI(`/dev/users/${userID}/cart/${cartID}/items/${lineItemID}`, 'delete', undefined, undefined, 3000);
+      return await InvokeAPI(`/users/${userID}/cart/${cartID}/items/${lineItemID}`, 'delete', undefined, undefined, 3001);
     }
 
     async addToCart(data): Promise<any> {  
-      return await InvokeAPI('/dev/addtocart', 'post', data, undefined, 2001);
+      return await InvokeAPI('/addtocart', 'post', data, undefined, 3001);
     }
 
     async modifyUserCartItem(userID,cartID,lineItemID,data):Promise<any>  {      
-      return await InvokeAPI(`/dev/users/${userID}/cart/${cartID}/items/${lineItemID}`, 'patch', undefined, data, 3000);
-    }
-
-    async getUserId(requestedHeader): Promise<any>{
-      return await this.authService.getProfile(requestedHeader);
+      return await InvokeAPI(`/users/${userID}/cart/${cartID}/items/${lineItemID}`, 'patch', data, undefined, 3001);
     }
 
 }

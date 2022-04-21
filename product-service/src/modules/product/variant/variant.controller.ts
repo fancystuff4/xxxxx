@@ -84,10 +84,7 @@ export class VariantController {
     variantId: string,
     @Res() res: Response,
   ): Promise<void> {
-    const variant = await this.variantService.getVariants(product.id, [
-      variantId,
-    ]);
-
+    const variant = await this.variantService.getSingleVariant(product.id, variantId);
     sendResponse(res, HttpStatus.OK, variant);
   }
 

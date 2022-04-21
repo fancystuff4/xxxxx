@@ -147,7 +147,7 @@ export class CartController {
             if (userCart) {
                 return res.status(HttpStatus.OK).json({
                     statusCode: HttpStatus.OK,
-                    cart: userCart,
+                    data: userCart,
                 });
             } else {
                 return res.status(HttpStatus.OK).json({

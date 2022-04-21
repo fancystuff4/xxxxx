@@ -1,11 +1,14 @@
 import { IsArray, IsNotEmpty, IsNumber, IsObject, IsOptional, IsUUID, ValidateNested } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 
 export class VariantObj{
 
+    @ApiProperty()
     @IsNotEmpty()
     variantID: string
 
+    @ApiProperty()
     @IsNotEmpty()
     itemID: string
 
@@ -14,17 +17,14 @@ export class VariantObj{
 
 }
 
-export class CartDto{
-
+export class AddToCartDto{
+    
+    @ApiProperty()
     @IsNotEmpty()
     @IsNumber()
     quantity: number;
 
-    @IsOptional()
-    @IsNotEmpty()
-    userId:string
-
-
+    @ApiProperty()
     @IsObject()
     @ValidateNested({ each: true })
     @Type(() => VariantObj)

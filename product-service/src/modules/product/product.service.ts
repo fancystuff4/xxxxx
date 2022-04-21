@@ -131,9 +131,13 @@ export class ProductService {
         {
           relations: [
             'options',
+            'options.subCatOption',
+            'images',
             'variants',
+            'variants.images',
             'variants.options',
             'variants.options.subCatOption',
+
           ],
         },
       );
