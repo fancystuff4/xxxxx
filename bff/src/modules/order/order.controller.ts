@@ -1,10 +1,12 @@
-import { Body, Controller, Get, Post, Response, Request,Param } from '@nestjs/common';
+import { Body, Controller, Get, Post, Response, Request,Param,HttpStatus,
+    HttpException } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { HttpService } from '@nestjs/axios';
 import { CreateOrderDto } from './helper/dto/order.dto';
 import { DESKTOP_ROUTES, MOBILE_ROUTES } from './helper/routes';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
+import { AuthenticationService } from '../authentication/authentication.service';
 // import { LogoutDto, LogoutResponseDto } from './dto/logout.dto';
 // import { GetRefreshTokenDto, GetRefreshTokenResponseDto } from './dto/refresh.dto';
 // import { ErrorDto, ErrorResponseDto } from './dto/error.dto';
@@ -16,15 +18,27 @@ import { Role } from 'src/common/enums/role.enum';
 
 @Controller('desktop')
 class OrderController {
-    constructor(private orderService: OrderService, private httpService: HttpService) {}
+    constructor(private orderService: OrderService,
+         private httpService: HttpService,
+         private authService: AuthenticationService) {}
 
     @Post([DESKTOP_ROUTES.CREATE_ORDER, MOBILE_ROUTES.CREATE_ORDER])
     @Roles(Role.User)
     async CreateOrderAPI(
         @Body() body: CreateOrderDto,
-        @Param('customerId') customerId: string,
+        @Request() req: any,
         @Response() res: any
     ) : Promise<void> {
+        let customerId = ""
+        const requestedHeader : any = { 
+            'authorization' : `${req.headers.authorization}`
+        }
+        if(req.headers.authorization){
+            const response = await this.authService.getProfile(requestedHeader);
+            customerId = response.data.username;
+        } else {
+            throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+        }
         const result : any = await this.orderService.createOrder(customerId,body);
         return res.status(result.statusCode).json(result.data);
     }

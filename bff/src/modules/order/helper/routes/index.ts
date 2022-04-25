@@ -1,5 +1,5 @@
 export enum DESKTOP_ROUTES {
-    CREATE_ORDER = 'desktop/customers/:customerId/orders',
+    CREATE_ORDER = 'desktop/customers/orders',
     GET_ORDER_BY_ID = 'desktop/orders/:id',
     GET_ORDER_BY_CUSOTOMER_ID = 'desktop/customers/:customerId/orders',
     GET_ORDER_BY_ORDER_STATUS = 'desktop/orderStatus/:status/orders',
@@ -11,7 +11,7 @@ export enum DESKTOP_ROUTES {
 }
 
 export enum MOBILE_ROUTES {
-    CREATE_ORDER = 'mobile/customers/:customerId/orders',
+    CREATE_ORDER = 'mobile/customers/orders',
     GET_ORDER_BY_ID = 'mobile/orders/:id',
     GET_ORDER_BY_CUSOTOMER_ID = 'mobile/customers/:customerId/orders',
     GET_ORDER_BY_ORDER_STATUS = 'mobile/orderStatus/:status/orders',
