@@ -12,21 +12,21 @@ import { EditPaymentServiceDto} from './dto/editPaymentService.dto';
 import { AddPaymentCredentialsDto} from './dto/addPaymentCredentials.dto';
 import { UpdateUserStatus } from './dto/updateUserStatus.dto';
 import { GetTenantDto } from './dto/getTenant.dto';
-import { Role } from './roles.enum';
 import { TenantService } from './tenant.service';
 @Controller()
 export class TenantController {
 
     constructor(private tenantService: TenantService){}
 
-    @Roles(Role.SUPERADMIN)
+    
     @Get('tenants/all/:lastItem?')
     async getAllTenants(@Res() res: any,@Query() paginateTenantDto:PaginateTenantDto){
         try {
             const tenant: any = await this.tenantService.getAllTenant(paginateTenantDto);
             if (tenant.ok) {
-                return res.status(HttpStatus.OK).json({
+                return res.status(200).json({
                     ok: true,
+                    statusCode:200,
                     message:'List of tenants',
                     data: tenant.data,
                     lastItem: tenant.lastItem
@@ -51,8 +51,9 @@ export class TenantController {
         try {
             const newTenant: any = await this.tenantService.createTenant(createTenantDto);
             if (newTenant.ok) {
-                return res.status(HttpStatus.CREATED).json({
+                return res.status(201).json({
                     ok: true,
+                    statusCode:201,
                     message: 'New Tenant Created',
                     data: newTenant.data,
                 });
@@ -73,12 +74,13 @@ export class TenantController {
     }
 
     @Get('tenants/:tenantId')
-    async getOne(@Param() getTenantDto: GetTenantDto, @Res() res: any){
+    async getOne(@Param("tenantId") tenantId: string, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.getTenantById(getTenantDto);
+            const tenant: any = await this.tenantService.getTenantById(tenantId);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
+                    statusCode:200,
                     message:'Tenant Details',
                     data: tenant.data,
                 });
@@ -105,6 +107,7 @@ export class TenantController {
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
                     ok: true,
+                    statusCode:201,
                     message:'Tenant Details Updated',
                     data: tenant.data,
                     
@@ -150,11 +153,12 @@ export class TenantController {
     }
 
     @Post('superadmin/:superAdminId/payments')
-    async addPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Body() addPaymentServiceDto: AddPaymentServiceDto, @Res() res: any){
+    async addPaymentService(@Param("superAdminId") superAdminId: string, @Body() addPaymentServiceDto: AddPaymentServiceDto, @Res() res: any){
         try {
-            const service: any = await this.tenantService.addPaymentService(paymentServiceDto,addPaymentServiceDto);
+            const service: any = await this.tenantService.addPaymentService(superAdminId,addPaymentServiceDto);
             if (service.ok) {
-                return res.status(HttpStatus.OK).json({
+                return res.status(201).json({
+                    statusCode:201,
                     ok: true,
                     message:'Payment Service Added',
                     data: service.data,
@@ -176,11 +180,13 @@ export class TenantController {
     }
 
     @Put('superadmin/:superAdminId/payments/:serviceName')
-    async editPaymentService(@Param() paymentServiceDto: PaymentServiceDto,@Param() serviceNameDto: ServiceNameDto,@Body() editPaymentServiceDto: EditPaymentServiceDto, @Res() res: any){
+    async editPaymentService(@Param("superAdminId") superAdminId: string,@Param("serviceName") serviceName: string,@Body() editPaymentServiceDto: EditPaymentServiceDto, @Res() res: any){
+        console.log(superAdminId,serviceName)
         try {
-            const service: any = await this.tenantService.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
+            const service: any = await this.tenantService.editPaymentService(superAdminId,serviceName,editPaymentServiceDto);
             if (service.ok) {
                 return res.status(HttpStatus.OK).json({
+                    statusCode:200,
                     ok: true,
                     message: 'Payment Service Updated',
                     data: service.data,
@@ -189,7 +195,7 @@ export class TenantController {
                 return res.status(HttpStatus.NOT_FOUND).json({
                     ok: false,
                     message: 'Error Trying to Update Payment Service',
-                    error: service.error
+                    error: service.message
                 });
             }
         } catch (error) {
@@ -202,11 +208,12 @@ export class TenantController {
     }
 
     @Post('/superadmin/:superAdminId/tenant/:tenantId/payments')
-    async addPaymentCredentials(@Param() paymentServiceDto: PaymentServiceDto,@Param() getTenantDto: GetTenantDto,@Body() addPaymentCredentialsDto: AddPaymentCredentialsDto, @Res() res: any){
+    async addPaymentCredentials(@Param("superAdminId") superAdminId:string,@Param("tenantId") tenantId,@Body() addPaymentCredentialsDto: AddPaymentCredentialsDto, @Res() res: any){
         try {
-            const tenant: any = await this.tenantService.addPaymentCredentials(paymentServiceDto,getTenantDto,addPaymentCredentialsDto);
+            const tenant: any = await this.tenantService.addPaymentCredentials(superAdminId,tenantId,addPaymentCredentialsDto);
             if (tenant.ok) {
                 return res.status(HttpStatus.OK).json({
+                    statusCode:201,
                     ok: true,
                     tenant: tenant.data,
                 });
@@ -227,11 +234,12 @@ export class TenantController {
     }
     
     @Delete('tenants/:tenantId/payments/:serviceName')
-    async removePaymentCredentials(@Param() getTenantDto: GetTenantDto,@Param() serviceNameDto: ServiceNameDto, @Res() res: any){
+    async removePaymentCredentials(@Param("tenantId") tenantId,@Param("serviceName") serviceName, @Res() res: any){
         try {
-            const service: any = await this.tenantService.removePaymentCredentials(getTenantDto,serviceNameDto);
+            const service: any = await this.tenantService.removePaymentCredentials(tenantId,serviceName);
             if (service.ok) {
                 return res.status(HttpStatus.OK).json({
+                    statusCode:204,
                     ok: true,
                     service: service.data,
                 });

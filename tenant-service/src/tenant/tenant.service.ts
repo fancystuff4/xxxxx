@@ -19,8 +19,8 @@ export class TenantService {
         return this.tenantRepository.createTenant(data);
     }
     
-    async getTenantById(getTenantDto){
-        return this.tenantRepository.getTenantById(getTenantDto);
+    async getTenantById(tenantId){
+        return this.tenantRepository.getTenantById(tenantId);
     }
 
     async updateTenant(getTenantDto, data){
@@ -35,13 +35,13 @@ export class TenantService {
         return this.tenantRepository.addPaymentService(paymentServiceDto,addPaymentServiceDto);
     }
 
-    async editPaymentService(paymentServiceDto, serviceNameDto,editPaymentServiceDto){
-        return this.tenantRepository.editPaymentService(paymentServiceDto,serviceNameDto,editPaymentServiceDto);
+    async editPaymentService(superAdminId, serviceNameDto,editPaymentServiceDto){
+        return this.tenantRepository.editPaymentService(superAdminId,serviceNameDto,editPaymentServiceDto);
     }
 
     
-    async removePaymentCredentials(getTenantDto, serviceNameDto){
-        return this.tenantRepository.removePaymentCredentials(getTenantDto,serviceNameDto);
+    async removePaymentCredentials(tenantId, serviceName){
+        return this.tenantRepository.removePaymentCredentials(tenantId,serviceName);
     }
 
     async getAllUsers(getTenantDto){
