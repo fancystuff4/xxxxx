@@ -5,11 +5,11 @@ import { InvokeAPI } from 'src/common/methods/invokeAPI';
 @Injectable()
 export class AuthenticationService {
   async signup(data): Promise<any> {
-    return await InvokeAPI('/auth/local/signup', 'post', data, undefined, 3031);
+    return await InvokeAPI('/auth/local/signup', 'post', data, undefined, 3000);
   }
 
   async signin(data): Promise<any> {
-    return await InvokeAPI('/auth/local/signin', 'post', data, undefined, 3031);
+    return await InvokeAPI('/auth/local/signin', 'post', data, undefined, 3000);
   }
 
   async refresh(data): Promise<any> {
@@ -25,6 +25,6 @@ export class AuthenticationService {
   }
 
   async verifyToken(data): Promise<any> {
-    return await InvokeAPI('/auth/verify', 'get', undefined, data, 3031);
+    return await InvokeAPI('/auth/verify', 'get', undefined, data, 3000);
   }
 }

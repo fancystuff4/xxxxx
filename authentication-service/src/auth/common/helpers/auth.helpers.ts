@@ -4,7 +4,7 @@ import { BadRequestException, UnauthorizedException } from '@nestjs/common';
 
 export const getTokensConfig = (atsecret: string, rtsecret: string) => ({
   [TOKENS.ACCESS_TOKEN]: {
-    expiresIn: 600, // in seconds
+    expiresIn: 6000, // in seconds
     secret: atsecret,
   },
 

@@ -49,75 +49,36 @@ class CartController {
     let data = null;
     const items = [];
     try {
-      if (cartDetails.data) {
-        for (let item of cartDetails?.data?.items) {
-          const variant = item.itemDetails.variant;
-          //console.log('Variant', variant);
-
-          const productDetails = await this.productService.getOneProduct(
-            variant.subcategoryId,
-            variant.itemID,
-          );
-
-          //console.log('Product Details', productDetails);
-
-          const variantDetails = await this.variantService.getVariant(
-            variant.subcategoryId,
-            variant.itemID,
-            variant.variantID,
-          );
-
-          //console.log('Variant Details', variantDetails);
-
-          items.push({
-            productDetails: productDetails.data,
-            variant: variantDetails.data,
-            lineItemID: item.lineItemID,
-            quantity: item.itemDetails.quantity,
-          });
-        }
+      for (let item of cartDetails?.data?.items) {
+        const variant = item.itemDetails.variant;
+        const productDetails = await this.productService.getOneProduct(
+          variant.subcategoryId,
+          variant.itemID,
+        );
+        const variantDetails = await this.variantService.getVariant(
+          variant.subcategoryId,
+          variant.itemID,
+          variant.variantID,
+        );
+        items.push({
+          productDetails: productDetails.data,
+          variant: variantDetails.data,
+          lineItemID: item.lineItemID,
+          quantity: item.itemDetails.quantity,
+        });
       }
-
       data = {
         id: cartDetails?.data?.id,
         items,
       };
+    } catch (error) {}
 
-      const result = {
-        statusCode: 200,
-        data,
-      };
-      return res.status(200).json(result);
-    } catch (error) {
-      console.log('Error', error);
-      return res.status(400).json(error);
-    }
+    const result = {
+      statusCode: 200,
+      data,
+    };
+    return res.status(200).json(result);
   }
-  //         for (let item of cartDetails?.data?.items) {
-  //             const variant = item.itemDetails.variant
-  //             const productDetails = await this.productService.getOneProduct(variant.subcategoryId, variant.itemID)
-  //             const variantDetails = await this.variantService.getVariant(variant.subcategoryId, variant.itemID, variant.variantID)
-  //             items.push({
-  //                 productDetails: productDetails.data,
-  //                 variant: variantDetails.data,
-  //                 lineItemID: item.lineItemID,
-  //                 quantity: item.itemDetails.quantity
-  //             })
-  //         }
-  //         data = {
-  //             id: cartDetails?.data?.id,
-  //             items
-  //         }
-  //     } catch (error) {
-
-  //     }
-
-  //     const result = {
-  //         statusCode: 200,
-  //         data
-  //     }
-  //     return res.status(200).json(result)
-  // }
 
   @Delete([DESKTOP_ROUTES.CART_REMOVE, MOBILE_ROUTES.CART_REMOVE])
   async removeUserCartItem(

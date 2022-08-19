@@ -6,7 +6,7 @@ const cloudformationSchema = require('@serverless/utils/cloudformation-schema');
 const SERVERLESS_CONFIG = __dirname + '/serverless.yml';
 const ddb = new DynamoDB({
   accessKeyId: 'fake-key',
-  endpoint: 'http://localhost:3010',
+  endpoint: 'http://localhost:4566',
   region: 'us-east-1',
   secretAccessKey: 'fake-secret',
 });

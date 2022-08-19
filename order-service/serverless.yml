@@ -1,57 +1,60 @@
 service:
-    name: order-service
+  name: order-service
 
 plugins:
-    - serverless-plugin-typescript
-    - serverless-plugin-optimize
-    - serverless-offline
+  - serverless-plugin-typescript
+  - serverless-plugin-optimize
+  - serverless-offline
 
 provider:
-    name: aws
-    tracing:
-        apiGateway: true
-    runtime: nodejs14.x
-    memorySize: 256
-    stage: dev
-    region: us-east-1
-    environment:
-        ORDERS_TABLE_NAME: ${self:custom.OrdersTable.name}
-    iamRoleStatements:
-        -   Effect: Allow
-            Action:
-                - dynamodb:PutItem
-                - dynamodb:Scan
-                - dynamodb:GetItem
-                - dynamodb:UpdateItem
-                - dynamodb:Query
-            Resource:
-                - ${self:custom.OrdersTable.arn}
+  name: aws
+  tracing:
+    apiGateway: true
+  runtime: nodejs14.x
+  memorySize: 256
+  stage: dev
+  region: us-east-1
+  environment:
+    ORDERS_TABLE_NAME: ${self:custom.OrdersTable.name}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+      Resource:
+        - ${self:custom.OrdersTable.arn}
 
 package:
-    individually: true
+  individually: true
 
 resources:
-    Resources:
-        OrdersTable:
-          Type: AWS::DynamoDB::Table
-          Properties:
-            TableName: OrdersTable-dev
-            BillingMode: PAY_PER_REQUEST
-            AttributeDefinitions:
-              - AttributeName: id
-                AttributeType: S
-            KeySchema:
-              - AttributeName: id
-                KeyType: HASH
+  Resources:
+    OrdersTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: OrdersTable-dev
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
 
 functions:
-    main:
-        handler: src/main.handler
-        events:
-          - http:
-              method: any
-              path: /{proxy+}
+  main:
+    handler: src/main.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
 custom:
-    OrdersTable:
-        name: !Ref OrdersTable
-        arn: !GetAtt OrdersTable.Arn
+  OrdersTable:
+    name: !Ref OrdersTable
+    arn: !GetAtt OrdersTable.Arn
+  serverless-offline:
+    httpPort: 5000
+    lambdaPort: 4008
