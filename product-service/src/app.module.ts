@@ -47,7 +47,7 @@ import {
         VariantImage,
         VariantOption,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
   ],
   controllers: [AppController],
