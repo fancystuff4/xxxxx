@@ -1,62 +1,61 @@
 service:
-    name: tenant-service
+  name: tenant-service
 
 plugins:
-    - serverless-plugin-typescript
-    - serverless-plugin-optimize
-    - serverless-offline
+  - serverless-plugin-typescript
+  - serverless-plugin-optimize
+  - serverless-offline
 
 provider:
-    name: aws
-    tracing:
-        apiGateway: true
-    runtime: nodejs14.x
-    memorySize: 256
-    stage: dev
-    region: us-east-1
-    environment:
-        TENANT_TABLE_NAME: ${self:custom.TenantsTable.name}
-    iamRoleStatements:
-        -   Effect: Allow
-            Action:
-                - dynamodb:PutItem
-                - dynamodb:Scan
-                - dynamodb:GetItem
-                - dynamodb:UpdateItem
-                - dynamodb:Query
-            Resource:
-                - ${self:custom.TenantsTable.arn}
+  name: aws
+  tracing:
+    apiGateway: true
+  runtime: nodejs14.x
+  memorySize: 256
+  stage: dev
+  region: us-east-1
+  environment:
+    TENANT_TABLE_NAME: ${self:custom.TenantsTable.name}
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:Scan
+        - dynamodb:GetItem
+        - dynamodb:UpdateItem
+        - dynamodb:Query
+      Resource:
+        - ${self:custom.TenantsTable.arn}
 
 package:
-    individually: true
+  individually: true
 
 resources:
-    Resources:
-        TenantTable:
-          Type: AWS::DynamoDB::Table
-          Properties:
-            TableName: tenant
-            BillingMode: PAY_PER_REQUEST
-            AttributeDefinitions:
-              - AttributeName: PK
-                AttributeType: S
-              - AttributeName: SK
-                AttributeType: S
-            KeySchema:
-              - AttributeName: PK
-                KeyType: HASH
-              - AttributeName: SK
-                KeyType: Range
-            
+  Resources:
+    TenantTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: tenant
+        BillingMode: PAY_PER_REQUEST
+        AttributeDefinitions:
+          - AttributeName: PK
+            AttributeType: S
+          - AttributeName: SK
+            AttributeType: S
+        KeySchema:
+          - AttributeName: PK
+            KeyType: HASH
+          - AttributeName: SK
+            KeyType: Range
 
 functions:
-    main:
-        handler: src/main.handler
-        events:
-          - http:
-              method: any
-              path: /{proxy+}
+  main:
+    handler: src/main.handler
+    events:
+      - http:
+          method: any
+          path: /{proxy+}
 custom:
-    TenantsTable:
-        name: !Ref TenantsTable
-        arn: !GetAtt TenantsTable.Arn
+  TenantsTable:
+    name: !Ref TenantsTable
+    arn: !GetAtt TenantsTable.Arn
