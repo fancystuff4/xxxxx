@@ -1,3 +1,4 @@
+import { DeleteGlobalSecondaryIndexAction } from '@aws-sdk/client-dynamodb';
 import {
   Controller,
   Post,
@@ -156,7 +157,6 @@ export class CartController {
   async getUserCart(@Param('id') id: string, @Res() res: Response) {
     try {
       const userCart: any = await this.cartService.findUserCart(id);
-      console.log('User cart', userCart);
       if (userCart) {
         return res.status(HttpStatus.OK).json({
           statusCode: HttpStatus.OK,
@@ -276,6 +276,35 @@ export class CartController {
     }
   }
 
+  @Delete('users/:userID/cart/:cartID')
+  async deleteCart(
+    @Param('userID') userID: string,
+    @Param('cartID') cartID: string,
+    @Res() res: Response,
+  ) {
+    try {
+      const userCart: any = await this.cartService.findUserCart(userID);
+      if (userCart && userCart.id === cartID) {
+        const result = await this.cartService.deleteCart(cartID);
+        return res.status(204).json({
+          ok: true,
+          statusCode: 204,
+        });
+      } else {
+        return res.status(HttpStatus.BAD_REQUEST).json({
+          statusCode: HttpStatus.BAD_REQUEST,
+          message: `Remove Cart: The user with id '${userID}' has no existing cart with id '${cartID}'`,
+        });
+      }
+    } catch (error) {
+      return res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({
+        statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
+        message: 'Remove Item from Cart: Error Trying to reach Database',
+        errors: error,
+      });
+    }
+  }
+
   @Post('addtocart')
   async addToCart(
     @Body() body: CartDto,
@@ -283,13 +312,11 @@ export class CartController {
     @Req() req: Request,
   ) {
     const userCart = await this.cartService.findUserCart(body.userId);
-    console.log('User cart CART SERVICE POST', userCart);
     if (!userCart) {
       const newCart: any = await this.cartService.insertIntoCart(
         body,
         body.userId,
       );
-      console.log('User cart cartService cart.controller', newCart);
       if (newCart.ok) {
         return res.status(HttpStatus.CREATED).json({
           statusCode: HttpStatus.CREATED,

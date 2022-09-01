@@ -51,17 +51,12 @@ class CartController {
       if (cartDetails.data) {
         for (let item of cartDetails?.data?.items) {
           const variant = item.itemDetails.variant;
-          const productDetails = await this.productService.getOneProduct(
-            variant.subcategoryId,
-            variant.itemID,
-          );
           const variantDetails = await this.variantService.getVariant(
             variant.subcategoryId,
             variant.itemID,
             variant.variantID,
           );
           items.push({
-            productDetails: productDetails.data,
             variant: variantDetails.data,
             lineItemID: item.lineItemID,
             quantity: item.itemDetails.quantity,
@@ -104,6 +99,27 @@ class CartController {
       cartId,
       lineItemId,
     );
+    return res.status(result.statusCode).json(result);
+  }
+
+  @Delete([DESKTOP_ROUTES.DELETE_CART, MOBILE_ROUTES.DELETE_CART])
+  async deleteCart(
+    @Param('cartId') cartId: string,
+    @Param('userId') userId: string,
+    @Response() res: any,
+    @Request() req: any,
+  ): Promise<any> {
+    // let userId = '';
+    // const requestedHeader: any = {
+    //   authorization: `${req.headers.authorization}`,
+    // };
+    // if (req.headers.authorization) {
+    //   const response = await this.authService.getProfile(requestedHeader);
+    //   userId = response.data.username;
+    // } else {
+    //   throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    // }
+    const result = await this.cartService.deleteCart(userId, cartId);
     return res.status(result.statusCode).json(result);
   }
 

@@ -25,6 +25,16 @@ export class CartService {
     );
   }
 
+  async deleteCart(userID, cartID): Promise<any> {
+    return await InvokeAPI(
+      `/dev/users/${userID}/cart/${cartID}`,
+      'delete',
+      undefined,
+      undefined,
+      3000,
+    );
+  }
+
   async addToCart(data): Promise<any> {
     return await InvokeAPI('/dev/addtocart', 'post', data, undefined, 3000);
   }

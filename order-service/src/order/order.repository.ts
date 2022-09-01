@@ -17,7 +17,7 @@ export class OrderRepository {
     customerId: string,
     userCart: any,
   ): Promise<OrderDetailsFunctionResponseDto> {
-    const id: string = uuid();
+    const orderId: string = uuid();
     var today = new Date();
     var date =
       today.getFullYear() +
@@ -33,14 +33,14 @@ export class OrderRepository {
       TotalPrice = TotalPrice + qty * Price;
     }
     const newOrder: OrderDetailsDto = {
-      id: id,
+      orderId: orderId,
       customerId: customerId,
       orderDate: dateTime,
       orderStatus: 'placed',
       TotalPrice: TotalPrice,
       ...userCart,
     };
-
+    console.log(newOrder);
     try {
       await client
         .put({

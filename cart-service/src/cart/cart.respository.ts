@@ -60,7 +60,6 @@ export class CartRepository {
       await client.update(params).promise();
       return { ok: true, data: lineItem };
     } catch (error) {
-      console.log('Error repo cart', error);
       throw new InternalServerErrorException(error);
     }
   }
@@ -139,7 +138,6 @@ export class CartRepository {
   }
 
   async findUserCart(sessionUserId: string) {
-    console.log('SesionUserID', sessionUserId);
     const params = {
       TableName: 'CartTable-dev',
       IndexName: 'userID-index',
@@ -155,7 +153,6 @@ export class CartRepository {
       const result = await client.query(params).promise();
       return result.Items[0];
     } catch (error) {
-      console.log('Error findusercart', error);
       throw new InternalServerErrorException(error);
     }
   }

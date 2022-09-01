@@ -11,7 +11,6 @@ export class CartService {
       cartDto,
       sessionUserId,
     );
-    console.log('Insert into cart CART SERVICE', createdCart);
     return createdCart;
   }
 
