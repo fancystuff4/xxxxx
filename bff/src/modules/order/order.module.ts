@@ -10,12 +10,6 @@ import { OrderService } from './order.service';
 @Module({
   imports: [HttpModule],
   controllers: [OrderController],
-  providers: [
-    OrderService,
-    AuthenticationService,
-    CartService,
-    ProductService,
-    VariantService,
-  ],
+  providers: [OrderService, AuthenticationService, CartService, VariantService],
 })
 export class OrderModule {}

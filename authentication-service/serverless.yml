@@ -71,5 +71,6 @@ custom:
   UsersTable:
     name: !Ref UsersTable
     arn: !GetAtt UsersTable.Arn
-  # serverless-offline:
-  #   httpPort: 3008
+  serverless-offline:
+    httpPort: 3008
+    lambdaPort: 9000
