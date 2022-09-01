@@ -1,0 +1,14 @@
+version: '3'
+volumes:
+  dynamodata:
+
+services:
+  dynamodb:
+    image: amazon/dynamodb-local:latest
+    command: -jar DynamoDBLocal.jar -sharedDb -port 4555 -dbPath /home/data/
+    ports:
+      - '4555:4555'
+    # working_dir: /home/dynamodblocal
+    user: root
+    volumes:
+      - dynamodata:/home/data

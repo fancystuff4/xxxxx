@@ -1,7 +1,7 @@
-import { IsNotEmpty ,IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsBoolean } from 'class-validator';
 
 export class UpdateUserStatus {
-    @IsNotEmpty()
-    @IsBoolean()
-    status: boolean;
+  @IsNotEmpty()
+  @IsBoolean()
+  status: boolean;
 }

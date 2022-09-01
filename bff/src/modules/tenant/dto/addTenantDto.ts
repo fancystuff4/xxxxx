@@ -1,35 +1,33 @@
-
-import { IsBoolean, IsNotEmpty, IsEmail,IsNumber } from 'class-validator';
-
+import { IsBoolean, IsNotEmpty, IsEmail, IsNumber } from 'class-validator';
 
 export class AddTenantDto {
-    @IsNotEmpty()
-    fullname: string;
-    
-    @IsNotEmpty()
-    @IsEmail()
-    username: string;
+  @IsNotEmpty()
+  fullname: string;
 
-    @IsNotEmpty()
-    password: string;
+  @IsNotEmpty()
+  @IsEmail()
+  username: string;
 
-    @IsNotEmpty()
-    fulladdress: string;
+  @IsNotEmpty()
+  password: string;
 
-    @IsNotEmpty()
-    city: string;
+  @IsNotEmpty()
+  fulladdress: string;
 
-    @IsNotEmpty()
-    state: string;
+  @IsNotEmpty()
+  city: string;
 
-    @IsNotEmpty()
-    country: string;
+  @IsNotEmpty()
+  state: string;
 
-    @IsNotEmpty()
-    @IsNumber()
-    pin: string;
+  @IsNotEmpty()
+  country: string;
 
-    @IsNotEmpty()
-    @IsBoolean()
-    status: boolean;
+  @IsNotEmpty()
+  @IsNumber()
+  pin: string;
+
+  @IsNotEmpty()
+  @IsBoolean()
+  status: boolean;
 }
