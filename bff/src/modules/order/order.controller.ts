@@ -8,6 +8,7 @@ import {
   Param,
   HttpStatus,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { HttpService } from '@nestjs/axios';
@@ -33,7 +34,6 @@ class OrderController {
     private orderService: OrderService,
     private httpService: HttpService,
     private authService: AuthenticationService,
-    private productService: ProductService,
     private variantService: VariantService,
     private cartService: CartService,
   ) {}
@@ -61,17 +61,12 @@ class OrderController {
       if (userCart.data) {
         for (let item of userCart?.data?.items) {
           const variant = item.itemDetails.variant;
-          const productDetails = await this.productService.getOneProduct(
-            variant.subcategoryId,
-            variant.itemID,
-          );
           const variantDetails = await this.variantService.getVariant(
             variant.subcategoryId,
             variant.itemID,
             variant.variantID,
           );
           items.push({
-            productDetails: productDetails.data,
             variant: variantDetails.data,
             lineItemID: item.lineItemID,
             quantity: item.itemDetails.quantity,
@@ -79,25 +74,14 @@ class OrderController {
         }
       }
       data = {
-        id: userCart?.data?.id,
         items,
       };
       const result: any = await this.orderService.createOrder(customerId, data);
-      for (let i = 0; i < result.order.items.length; i++) {
-        const image = result.order.items[i].productDetails;
-        image['images'] = result.order.items[i].productDetails.images[0];
-      }
-      for (let i = 0; i < result.order.items.length; i++) {
-        delete result.order.items[i].productDetails.active;
-        delete result.order.items[i].productDetails.options;
-        delete result.order.items[i].productDetails.variants;
-        delete result.order.items[i].variant.active;
-        delete result.order.items[i].variant.productId;
-        delete result.order.items[i].variant.product;
-        delete result.order.items[i].variant.options;
-        delete result.order.items[i].variant.images;
-      }
-      return res.status(200).json(result);
+      const emptyCart: any = await this.cartService.deleteCart(
+        customerId,
+        userCart.data.id,
+      );
+      return res.status(201).json(result);
     } catch (error) {
       return res.status(400).json(error);
     }
@@ -110,23 +94,6 @@ class OrderController {
     @Response() res: any,
   ): Promise<void> {
     const result: any = await this.orderService.getOrderById(id);
-    for (let i = 0; i < result.order.items.length; i++) {
-      const image = result.order.items[i].productDetails;
-      image['images'] = result.order.items[i].productDetails.images[0];
-    }
-    for (let i = 0; i < result.order.items.length; i++) {
-      delete result.order.items[i].variant.product.active;
-      delete result.order.items[i].variant.productId;
-      delete result.order.items[i].variant.options;
-      delete result.order.items[i].variant.active;
-      delete result.order.items[i].variant.images;
-      delete result.order.items[i].productDetails.name;
-      delete result.order.items[i].productDetails.options;
-      delete result.order.items[i].productDetails.active;
-      delete result.order.items[i].productDetails.id;
-      delete result.order.items[i].productDetails.subCategoryId;
-      delete result.order.items[i].productDetails.variants;
-    }
     return res.status(result.statusCode).json(result);
   }
 
@@ -223,27 +190,6 @@ class OrderController {
       date,
       customerId,
     );
-    for (let i = 0; i < result.order.length; i++) {
-      for (let j = 0; j < result.order[i].items.length; j++) {
-        const image = result.order[i].items[j].productDetails;
-        image['images'] = result.order[i].items[j].productDetails.images[0];
-      }
-    }
-    for (let i = 0; i < result.order.length; i++) {
-      for (let j = 0; j < result.order[i].items.length; j++) {
-        delete result.order[i].items[j].variant.product.active;
-        delete result.order[i].items[j].variant.productId;
-        delete result.order[i].items[j].variant.images;
-        delete result.order[i].items[j].variant.options;
-        delete result.order[i].items[j].variant.active;
-        delete result.order[i].items[j].productDetails.name;
-        delete result.order[i].items[j].productDetails.options;
-        delete result.order[i].items[j].productDetails.active;
-        delete result.order[i].items[j].productDetails.id;
-        delete result.order[i].items[j].productDetails.subCategoryId;
-        delete result.order[i].items[j].productDetails.variants;
-      }
-    }
     return res.status(result.statusCode).json(result);
   }
 
@@ -254,23 +200,6 @@ class OrderController {
     @Param('id') id: string,
   ): Promise<void> {
     const result: any = await this.orderService.updateOrder(body, id);
-    for (let i = 0; i < result.order.items.length; i++) {
-      const image = result.order.items[i].productDetails;
-      image['images'] = result.order.items[i].productDetails.images[0];
-    }
-    for (let i = 0; i < result.order.items.length; i++) {
-      delete result.order.items[i].variant.product.active;
-      delete result.order.items[i].variant.productId;
-      delete result.order.items[i].variant.options;
-      delete result.order.items[i].variant.active;
-      delete result.order.items[i].variant.images;
-      delete result.order.items[i].productDetails.name;
-      delete result.order.items[i].productDetails.options;
-      delete result.order.items[i].productDetails.active;
-      delete result.order.items[i].productDetails.id;
-      delete result.order.items[i].productDetails.subCategoryId;
-      delete result.order.items[i].productDetails.variants;
-    }
     return res.status(result.statusCode).json(result);
   }
 }

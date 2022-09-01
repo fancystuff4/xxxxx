@@ -8,7 +8,7 @@ export class ProductService {
       'post',
       body,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -19,7 +19,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -35,8 +35,7 @@ export class ProductService {
     if (ids) {
       url += `ids=${ids}`;
     }
-    console.log(url);
-    const result: any = await InvokeAPI(url, 'get', undefined, undefined, 3000);
+    const result: any = await InvokeAPI(url, 'get', undefined, undefined, 3006);
     return result;
   }
 
@@ -46,7 +45,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -57,7 +56,7 @@ export class ProductService {
       'delete',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -68,7 +67,7 @@ export class ProductService {
       'put',
       body,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -79,7 +78,7 @@ export class ProductService {
       'post',
       body,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -90,7 +89,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -101,7 +100,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
@@ -112,7 +111,7 @@ export class ProductService {
       'delete',
       undefined,
       undefined,
-      3000,
+      3006,
     );
     return result;
   }
