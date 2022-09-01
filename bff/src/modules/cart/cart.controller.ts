@@ -28,7 +28,6 @@ class CartController {
   constructor(
     private cartService: CartService,
     private authService: AuthenticationService,
-    private productService: ProductService,
     private variantService: VariantService,
   ) {}
 
@@ -40,7 +39,7 @@ class CartController {
     };
     if (req.headers.authorization) {
       const response = await this.authService.getProfile(requestedHeader);
-      userId = response.data.username;
+      userId = response?.data?.username;
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
@@ -48,18 +47,19 @@ class CartController {
     let data = null;
     const items = [];
     try {
-      if (cartDetails.data) {
+      if (cartDetails?.data) {
         for (let item of cartDetails?.data?.items) {
-          const variant = item.itemDetails.variant;
+          const variant = item?.itemDetails?.variant;
+
           const variantDetails = await this.variantService.getVariant(
-            variant.subcategoryId,
-            variant.itemID,
-            variant.variantID,
+            variant?.subcategoryId,
+            variant?.itemID,
+            variant?.variantID,
           );
           items.push({
-            variant: variantDetails.data,
-            lineItemID: item.lineItemID,
-            quantity: item.itemDetails.quantity,
+            variant: variantDetails?.data,
+            lineItemID: item?.lineItemID,
+            quantity: item?.itemDetails?.quantity,
           });
         }
       }

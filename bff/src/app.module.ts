@@ -13,6 +13,7 @@ import { UserModule } from './modules/user/user.module';
     OrderModule,
     TenantModule,
     CartModule,
+    UserModule,
   ],
 })
 export class AppModule {}
