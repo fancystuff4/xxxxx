@@ -9,7 +9,7 @@ export class CategoryService {
       'post',
       data,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -20,7 +20,7 @@ export class CategoryService {
       'get',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -31,7 +31,7 @@ export class CategoryService {
       'get',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -42,7 +42,7 @@ export class CategoryService {
       'delete',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -53,7 +53,7 @@ export class CategoryService {
       'put',
       data,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -64,7 +64,7 @@ export class CategoryService {
       'put',
       data,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -75,7 +75,7 @@ export class CategoryService {
       'post',
       data,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -86,7 +86,7 @@ export class CategoryService {
       'get',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -97,7 +97,7 @@ export class CategoryService {
       'get',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -108,7 +108,7 @@ export class CategoryService {
       'delete',
       undefined,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }
@@ -119,7 +119,7 @@ export class CategoryService {
       'put',
       data,
       undefined,
-      3035,
+      3006,
     );
     return result;
   }

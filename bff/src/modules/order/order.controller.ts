@@ -8,6 +8,7 @@ import {
   Param,
   HttpStatus,
   HttpException,
+  Put,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { HttpService } from '@nestjs/axios';
@@ -16,6 +17,9 @@ import { DESKTOP_ROUTES, MOBILE_ROUTES } from './helper/routes';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { AuthenticationService } from '../authentication/authentication.service';
+import { ProductService } from '../product/product/product.service';
+import { VariantService } from '../product/product/variant/variant.service';
+import { CartService } from '../cart/cart.service';
 // import { LogoutDto, LogoutResponseDto } from './dto/logout.dto';
 // import { GetRefreshTokenDto, GetRefreshTokenResponseDto } from './dto/refresh.dto';
 // import { ErrorDto, ErrorResponseDto } from './dto/error.dto';
@@ -30,12 +34,13 @@ class OrderController {
     private orderService: OrderService,
     private httpService: HttpService,
     private authService: AuthenticationService,
+    private variantService: VariantService,
+    private cartService: CartService,
   ) {}
 
   @Post([DESKTOP_ROUTES.CREATE_ORDER, MOBILE_ROUTES.CREATE_ORDER])
   @Roles(Role.User)
   async CreateOrderAPI(
-    @Body() body: CreateOrderDto,
     @Request() req: any,
     @Response() res: any,
   ): Promise<void> {
@@ -49,8 +54,37 @@ class OrderController {
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
-    const result: any = await this.orderService.createOrder(customerId, body);
-    return res.status(result.statusCode).json(result.data);
+    const userCart = await this.cartService.getUserCart(customerId);
+    let data = null;
+    const items = [];
+    try {
+      if (userCart.data) {
+        for (let item of userCart?.data?.items) {
+          const variant = item.itemDetails.variant;
+          const variantDetails = await this.variantService.getVariant(
+            variant.subcategoryId,
+            variant.itemID,
+            variant.variantID,
+          );
+          items.push({
+            variant: variantDetails.data,
+            lineItemID: item.lineItemID,
+            quantity: item.itemDetails.quantity,
+          });
+        }
+      }
+      data = {
+        items,
+      };
+      const result: any = await this.orderService.createOrder(customerId, data);
+      const emptyCart: any = await this.cartService.deleteCart(
+        customerId,
+        userCart.data.id,
+      );
+      return res.status(201).json(result);
+    } catch (error) {
+      return res.status(400).json(error);
+    }
   }
 
   @Get([DESKTOP_ROUTES.GET_ORDER_BY_ID, MOBILE_ROUTES.GET_ORDER_BY_ID])
@@ -60,7 +94,7 @@ class OrderController {
     @Response() res: any,
   ): Promise<void> {
     const result: any = await this.orderService.getOrderById(id);
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([
@@ -75,7 +109,7 @@ class OrderController {
     const result: any = await this.orderService.getOrderByCustomerId(
       customerId,
     );
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([
@@ -88,14 +122,14 @@ class OrderController {
     @Response() res: any,
   ): Promise<void> {
     const result: any = await this.orderService.getOrderByOrderStatus(status);
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([DESKTOP_ROUTES.GET_ALL_ORDERS, MOBILE_ROUTES.GET_ALL_ORDERS])
   @Roles(Role.Tenant)
   async GetAllOrdersApi(@Response() res: any): Promise<void> {
     const result: any = await this.orderService.getAllOrders();
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([
@@ -109,7 +143,7 @@ class OrderController {
     @Param('to') to: string,
   ): Promise<void> {
     const result: any = await this.orderService.getOrdersBetweenDates(from, to);
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([
@@ -129,7 +163,7 @@ class OrderController {
         to,
         customerId,
       );
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([DESKTOP_ROUTES.GET_ORDER_BY_DATE, MOBILE_ROUTES.GET_ORDER_BY_DATE])
@@ -139,7 +173,7 @@ class OrderController {
     @Param('date') date: string,
   ): Promise<void> {
     const result: any = await this.orderService.getOrdersByDate(date);
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
   }
 
   @Get([
@@ -156,7 +190,17 @@ class OrderController {
       date,
       customerId,
     );
-    return res.status(result.statusCode).json(result.data);
+    return res.status(result.statusCode).json(result);
+  }
+
+  @Put([DESKTOP_ROUTES.UPDATE_ORDER])
+  async updateOrderApi(
+    @Response() res: any,
+    @Body() body: any,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const result: any = await this.orderService.updateOrder(body, id);
+    return res.status(result.statusCode).json(result);
   }
 }
 export default OrderController;

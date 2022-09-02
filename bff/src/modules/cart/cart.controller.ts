@@ -28,7 +28,6 @@ class CartController {
   constructor(
     private cartService: CartService,
     private authService: AuthenticationService,
-    private productService: ProductService,
     private variantService: VariantService,
   ) {}
 
@@ -40,84 +39,43 @@ class CartController {
     };
     if (req.headers.authorization) {
       const response = await this.authService.getProfile(requestedHeader);
-      userId = response.data.username;
+      userId = response?.data?.username;
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     const cartDetails = await this.cartService.getUserCart(userId);
-    console.log('cartdetails ' + JSON.stringify(cartDetails));
     let data = null;
     const items = [];
     try {
-      if (cartDetails.data) {
+      if (cartDetails?.data) {
         for (let item of cartDetails?.data?.items) {
-          const variant = item.itemDetails.variant;
-          //console.log('Variant', variant);
-
-          const productDetails = await this.productService.getOneProduct(
-            variant.subcategoryId,
-            variant.itemID,
-          );
-
-          //console.log('Product Details', productDetails);
+          const variant = item?.itemDetails?.variant;
 
           const variantDetails = await this.variantService.getVariant(
-            variant.subcategoryId,
-            variant.itemID,
-            variant.variantID,
+            variant?.subcategoryId,
+            variant?.itemID,
+            variant?.variantID,
           );
-
-          //console.log('Variant Details', variantDetails);
-
           items.push({
-            productDetails: productDetails.data,
-            variant: variantDetails.data,
-            lineItemID: item.lineItemID,
-            quantity: item.itemDetails.quantity,
+            variant: variantDetails?.data,
+            lineItemID: item?.lineItemID,
+            quantity: item?.itemDetails?.quantity,
           });
         }
       }
-
       data = {
         id: cartDetails?.data?.id,
         items,
       };
-
       const result = {
         statusCode: 200,
         data,
       };
       return res.status(200).json(result);
     } catch (error) {
-      console.log('Error', error);
       return res.status(400).json(error);
     }
   }
-  //         for (let item of cartDetails?.data?.items) {
-  //             const variant = item.itemDetails.variant
-  //             const productDetails = await this.productService.getOneProduct(variant.subcategoryId, variant.itemID)
-  //             const variantDetails = await this.variantService.getVariant(variant.subcategoryId, variant.itemID, variant.variantID)
-  //             items.push({
-  //                 productDetails: productDetails.data,
-  //                 variant: variantDetails.data,
-  //                 lineItemID: item.lineItemID,
-  //                 quantity: item.itemDetails.quantity
-  //             })
-  //         }
-  //         data = {
-  //             id: cartDetails?.data?.id,
-  //             items
-  //         }
-  //     } catch (error) {
-
-  //     }
-
-  //     const result = {
-  //         statusCode: 200,
-  //         data
-  //     }
-  //     return res.status(200).json(result)
-  // }
 
   @Delete([DESKTOP_ROUTES.CART_REMOVE, MOBILE_ROUTES.CART_REMOVE])
   async removeUserCartItem(
@@ -141,6 +99,27 @@ class CartController {
       cartId,
       lineItemId,
     );
+    return res.status(result.statusCode).json(result);
+  }
+
+  @Delete([DESKTOP_ROUTES.DELETE_CART, MOBILE_ROUTES.DELETE_CART])
+  async deleteCart(
+    @Param('cartId') cartId: string,
+    @Param('userId') userId: string,
+    @Response() res: any,
+    @Request() req: any,
+  ): Promise<any> {
+    // let userId = '';
+    // const requestedHeader: any = {
+    //   authorization: `${req.headers.authorization}`,
+    // };
+    // if (req.headers.authorization) {
+    //   const response = await this.authService.getProfile(requestedHeader);
+    //   userId = response.data.username;
+    // } else {
+    //   throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    // }
+    const result = await this.cartService.deleteCart(userId, cartId);
     return res.status(result.statusCode).json(result);
   }
 

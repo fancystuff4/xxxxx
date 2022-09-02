@@ -11,8 +11,8 @@ import { UserModule } from './modules/user/user.module';
     AuthenticationModule,
     ProductMainModule,
     OrderModule,
-    CartModule,
     TenantModule,
+    CartModule,
     UserModule,
   ],
 })

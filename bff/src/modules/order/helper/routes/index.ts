@@ -8,6 +8,7 @@ export enum DESKTOP_ROUTES {
   GET_ORDER_BETWEEN_DATES_AND_CUSTOMER_ID = 'desktop/from/:from/to/:to/customers/:customerId/orders',
   GET_ORDER_BY_DATE = 'desktop/date/:date/orders',
   GET_ORDER_BY_DATE_AND_CUSTOMER_ID = 'desktop/date/:date/customer/:customerId/orders',
+  UPDATE_ORDER = 'desktop/:id/orders',
 }
 
 export enum MOBILE_ROUTES {

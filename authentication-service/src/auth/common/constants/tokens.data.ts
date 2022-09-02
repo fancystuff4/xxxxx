@@ -5,7 +5,7 @@ export enum TOKENS {
 
 export const JWT_COOKIE_CONFIG = {
   [TOKENS.ACCESS_TOKEN]: {
-    maxAge: 1200000, // in ms
+    maxAge: 6000000, // in ms
   },
 
   [TOKENS.REFRESH_TOKEN]: {
