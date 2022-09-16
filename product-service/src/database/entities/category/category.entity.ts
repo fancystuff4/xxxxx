@@ -10,6 +10,9 @@ export class Category {
   @Column({ unique: true })
   name: string;
 
+  @Column({ unique: false })
+  description: string;
+
   @Column({ default: false })
   active: boolean;
 

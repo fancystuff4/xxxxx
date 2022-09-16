@@ -7,6 +7,10 @@ export class CategoryCreateDto {
     @IsNotEmpty()
     name: string;
   
+    @ApiProperty()
+    @IsNotEmpty()
+    description: string;
+
     @IsOptional()
     @ApiProperty()
     @IsBoolean()
@@ -14,13 +18,18 @@ export class CategoryCreateDto {
 }
 
 export class CategoryUpdateDto {
-    @IsOptional()
-    @ApiProperty()
-    @IsNotEmpty()
-    name: string;
-  
-    @IsOptional()
-    @ApiProperty()
-    @IsBoolean()
-    active: boolean;
-  }
+  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
+  name: string;
+
+  @IsOptional()
+  @ApiProperty()
+  @IsNotEmpty()
+  description: string;
+
+  @IsOptional()
+  @ApiProperty()
+  @IsBoolean()
+  active: boolean;
+}
