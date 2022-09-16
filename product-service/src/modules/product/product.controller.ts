@@ -29,7 +29,7 @@ import {
   sendResponse,
 } from 'src/helpers/methods';
 import {
-  ProductAndOptionCreateDto,
+  ProductCreateDto,
   ProductOptionCreateObj,
   ProductOptionUpdateDto,
   ProductImageCreateDto,
@@ -46,13 +46,12 @@ export class ProductController {
   async createProduct(
     @GetParameterFromRequest('subCategory') subCategory: SubCategory,
     @Res() res: Response,
-    @Body() body: ProductAndOptionCreateDto,
+    @Body() body: ProductCreateDto,
   ): Promise<void> {
     const newProduct = await this.productService.createProduct(
       subCategory.id,
       body,
     );
-
     sendResponse(res, HttpStatus.OK, newProduct);
   }
 

@@ -30,7 +30,7 @@ import {
   UpdateResult,
 } from 'typeorm';
 import {
-  ProductAndOptionCreateDto,
+  ProductCreateDto,
   ProductOptionCreateObj,
   ProductOptionUpdateDto,
   ProductImageCreateObj,
@@ -57,50 +57,50 @@ export class ProductService {
   // create product
   async createProduct(
     subCategoryId: string,
-    body: ProductAndOptionCreateDto,
+    body: ProductCreateDto,
   ): Promise<Product> {
     try {
       let newProduct = new Product();
-      const { options, ...productAttributes } = body;
+      const { ...productAttributes } = body;
 
       newProduct = { ...newProduct, ...productAttributes, subCategoryId };
 
       const insertedProduct = await this.productRepository.save(newProduct);
 
-      const productOptions: ProductOption[] = [];
-      const valueAndOptionIds: { subCatOptionId: string; value: any }[][] = [];
+      // const productOptions: ProductOption[] = [];
+      // const valueAndOptionIds: { subCatOptionId: string; value: any }[][] = [];
 
-      options.forEach((option) => {
-        let newOption = new ProductOption();
-        newOption = { ...newOption, ...option, productId: insertedProduct.id };
+      // options.forEach((option) => {
+      //   let newOption = new ProductOption();
+      //   newOption = { ...newOption, ...option, productId: insertedProduct.id };
 
-        productOptions.push(newOption);
+      //   productOptions.push(newOption);
 
-        // make an array of the form
-        // [ array for each options-type ]
+      //   // make an array of the form
+      //   // [ array for each options-type ]
 
-        const valueAndOptId = option.availableValues.map((value) => ({
-          value,
-          subCatOptionId: option.subCatOptionId,
-        }));
+      //   const valueAndOptId = option.availableValues.map((value) => ({
+      //     value,
+      //     subCatOptionId: option.subCatOptionId,
+      //   }));
 
-        valueAndOptionIds.push(valueAndOptId);
-      });
+      //   valueAndOptionIds.push(valueAndOptId);
+      // });
 
-      const combinations = createCombinationOfElements(valueAndOptionIds);
+      // const combinations = createCombinationOfElements(valueAndOptionIds);
 
-      const variantsObj = combinations.map((options) => ({
-        name: options.reduce((a, c) => a + c.value + '/ ', ''),
-        productId: insertedProduct.id,
-        active: true,
-        price: 0,
-        options,
-      }));
+      // const variantsObj = combinations.map((options) => ({
+      //   name: options.reduce((a, c) => a + c.value + '/ ', ''),
+      //   productId: insertedProduct.id,
+      //   active: true,
+      //   price: 0,
+      //   options,
+      // }));
 
       // the following two can be done simultaneously
-      await this.variantService.createVariants(insertedProduct.id, variantsObj);
+      // await this.variantService.createVariants(insertedProduct.id, variantsObj);
 
-      await this.productOptionRepository.save(productOptions);
+      // await this.productOptionRepository.save(productOptions);
 
       const productWithOptions = await this.productRepository.findOne({
         where: { id: insertedProduct.id },
@@ -137,7 +137,6 @@ export class ProductService {
             'variants.images',
             'variants.options',
             'variants.options.subCatOption',
-
           ],
         },
       );

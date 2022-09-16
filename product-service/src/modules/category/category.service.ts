@@ -36,9 +36,8 @@ export class CategoryService {
       const newCategory = new Category();
       newCategory.name = category.name;
       newCategory.active = category.active;
-
+      newCategory.description = category.description;
       const addedCategory = await this.categoryRepository.save(newCategory);
-
       return addedCategory;
     } catch (error) {
       throwError(error, {

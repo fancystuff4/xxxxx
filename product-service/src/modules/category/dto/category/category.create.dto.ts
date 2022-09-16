@@ -4,6 +4,9 @@ export class CategoryCreateDto {
   @IsNotEmpty()
   name: string;
 
+  @IsNotEmpty()
+  description: string;
+
   @IsOptional()
   @IsBoolean()
   active: boolean;

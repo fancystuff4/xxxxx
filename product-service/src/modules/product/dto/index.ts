@@ -1,8 +1,4 @@
-export {
-  ProductAndOptionCreateDto,
-  ProductCreateDto,
-  ProductUpdateDto,
-} from './product';
+export { ProductCreateDto, ProductUpdateDto } from './product';
 export {
   ProductOptionCreateDto,
   ProductOptionCreateObj,
