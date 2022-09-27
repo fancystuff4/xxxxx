@@ -30,7 +30,7 @@ import {
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '',
+      password: '12345678',
       database: 'multitenant-product-db',
       entities: [
         Brand,

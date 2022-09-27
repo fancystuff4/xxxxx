@@ -3,7 +3,6 @@
     "scripts": {
         "setup:dynamodb": "node create-tables-locally.js",
         "up": "docker-compose up -d",
-       
         "down": "docker-compose down",
         "pretest": "npm run up",
         "test": "jest --passWithNoTests",
@@ -12,7 +11,8 @@
         "test:watch": "jest --watch"
     },
     "dependencies": {
-        "aws-sdk": "2.906.0"
+        "aws-sdk": "^2.906.0",
+        "moment": "^2.29.4"
     },
     "devDependencies": {
         "jest": "27.0.6",
