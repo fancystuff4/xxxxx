@@ -41,4 +41,7 @@ export class Product {
 
   @Column()
   subCategoryId: string;
+
+  @Column()
+  description: string;
 }

@@ -7,4 +7,7 @@ export class SubCatCreateDto {
   @IsOptional()
   @IsBoolean()
   active: boolean;
+
+  @IsOptional()
+  description: string;
 }
