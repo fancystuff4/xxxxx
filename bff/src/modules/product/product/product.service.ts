@@ -8,7 +8,7 @@ export class ProductService {
       'post',
       body,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -19,7 +19,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -35,7 +35,7 @@ export class ProductService {
     if (ids) {
       url += `ids=${ids}`;
     }
-    const result: any = await InvokeAPI(url, 'get', undefined, undefined, 3006);
+    const result: any = await InvokeAPI(url, 'get', undefined, undefined, Number(process.env.PRODUCT_SERVICE_PORT));
     return result;
   }
 
@@ -45,7 +45,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -56,7 +56,7 @@ export class ProductService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -67,7 +67,7 @@ export class ProductService {
       'put',
       body,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -78,7 +78,7 @@ export class ProductService {
       'post',
       body,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -89,7 +89,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -100,7 +100,7 @@ export class ProductService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -111,7 +111,7 @@ export class ProductService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
