@@ -9,6 +9,9 @@ export class ProductCreateDto {
   @IsOptional()
   @IsBoolean()
   active: boolean;
+
+  @IsOptional()
+  description: string;
 }
 
 // export class ProductAndOptionCreateDto extends IntersectionType(

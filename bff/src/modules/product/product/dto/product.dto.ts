@@ -20,6 +20,10 @@ export class ProductCreateDto {
   @Type(() => ProductOptionCreateObj)
   options: ProductOptionCreateObj[];
 
+  @IsOptional()
+  @ApiProperty()
+  description: string;
+
 }
 
 export class ProductOptionCreateObj {

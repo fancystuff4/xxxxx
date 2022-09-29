@@ -43,4 +43,7 @@ export class SubCategory {
 
   @Column()
   categoryId: string;
+
+  @Column()
+  description: string;
 }
