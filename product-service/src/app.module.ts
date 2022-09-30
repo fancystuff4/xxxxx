@@ -5,6 +5,7 @@ import { BrandModule } from './modules/brand/brand.module';
 import { CategoryModule } from './modules/category/category.module';
 import { ProductModule } from './modules/product/product.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import {
   Brand,
   BrandLogo,
@@ -22,16 +23,19 @@ import {
 } from './database/entities';
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      envFilePath: '.env',
+    }),
     BrandModule,
     CategoryModule,
     ProductModule,
     TypeOrmModule.forRoot({
       type: 'mysql',
-      host: 'localhost',
-      port: 3306,
-      username: 'root',
-      password: '12345678',
-      database: 'multitenant-product-db',
+      host: process.env.DB_HOST,
+      port: Number(process.env.DB_PORT),
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
       entities: [
         Brand,
         BrandLogo,
@@ -48,6 +52,7 @@ import {
         VariantOption,
       ],
       synchronize: false,
+      autoLoadEntities: true,
     }),
   ],
   controllers: [AppController],

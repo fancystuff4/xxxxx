@@ -17,7 +17,7 @@ export class OrderService {
       'post',
       data,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -28,7 +28,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -39,7 +39,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -50,7 +50,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -61,7 +61,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -72,7 +72,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -83,7 +83,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -94,7 +94,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -105,7 +105,7 @@ export class OrderService {
       'get',
       undefined,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }
@@ -116,7 +116,7 @@ export class OrderService {
       'put',
       data,
       undefined,
-      5000,
+      Number(process.env.ORDER_SERVICE_PORT),
     );
     return result;
   }

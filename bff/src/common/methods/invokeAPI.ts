@@ -11,7 +11,7 @@ export const InvokeAPI = async (
         
     var config : AxiosRequestConfig<any> = {
         method: method,
-        url: `http://localhost:${port}${url}`,
+        url: `${process.env.BASE_URL}:${port}${url}`,
         timeout: 10000
     };
 

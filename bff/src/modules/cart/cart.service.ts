@@ -11,7 +11,7 @@ export class CartService {
       'get',
       undefined,
       undefined,
-      3000,
+      Number(process.env.CART_SERVICE_PORT),
     );
   }
 
@@ -21,7 +21,7 @@ export class CartService {
       'delete',
       undefined,
       undefined,
-      3000,
+      Number(process.env.CART_SERVICE_PORT),
     );
   }
 
@@ -31,12 +31,12 @@ export class CartService {
       'delete',
       undefined,
       undefined,
-      3000,
+      Number(process.env.CART_SERVICE_PORT),
     );
   }
 
   async addToCart(data): Promise<any> {
-    return await InvokeAPI('/dev/addtocart', 'post', data, undefined, 3000);
+    return await InvokeAPI('/dev/addtocart', 'post', data, undefined, Number(process.env.CART_SERVICE_PORT));
   }
 
   async modifyUserCartItem(userID, cartID, lineItemID, data): Promise<any> {
@@ -45,7 +45,7 @@ export class CartService {
       'patch',
       data,
       undefined,
-      3000,
+      Number(process.env.CART_SERVICE_PORT),
     );
   }
 }

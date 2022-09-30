@@ -9,7 +9,7 @@ export class UserService {
       'post',
       data,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 
@@ -19,7 +19,7 @@ export class UserService {
       'get',
       undefined,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 
@@ -29,7 +29,7 @@ export class UserService {
       'patch',
       body,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 
@@ -43,7 +43,7 @@ export class UserService {
       'patch',
       body,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 
@@ -57,7 +57,7 @@ export class UserService {
       'delete',
       undefined,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 
@@ -71,7 +71,7 @@ export class UserService {
       'patch',
       undefined,
       undefined,
-      3040,
+      Number(process.env.USER_SERVICE_PORT),
     );
   }
 }

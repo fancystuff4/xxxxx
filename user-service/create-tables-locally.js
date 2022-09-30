@@ -1,3 +1,4 @@
+require('dotenv').config()
 const fs = require('fs');
 const DynamoDB = require('aws-sdk/clients/dynamodb');
 const yaml = require('js-yaml');
@@ -5,10 +6,10 @@ const cloudformationSchema = require('@serverless/utils/cloudformation-schema');
 
 const SERVERLESS_CONFIG = __dirname + '/serverless.yml';
 const ddb = new DynamoDB({
-  accessKeyId: 'fake-key',
-  endpoint: 'http://localhost:4555',
-  region: 'us-east-1',
-  secretAccessKey: 'fake-secret',
+  accessKeyId: process.env.DYNAMO_ACCESS_KEY_ID,
+  endpoint: process.env.DYNAMO_ENDPOINT,
+  region: process.env.DYNAMO_REGION,
+  secretAccessKey: process.env.DYNAMO_SECRET_KEY,
 });
 async function getDynamoDBTableResources() {
   console.info(SERVERLESS_CONFIG);
