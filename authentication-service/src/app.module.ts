@@ -9,7 +9,7 @@ import { UserModule } from './user/user.module';
   imports: [
     AuthModule,
     UserModule,
-    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.dev.env' }),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '.env' }),
   ],
   controllers: [AppController],
   providers: [AppService],

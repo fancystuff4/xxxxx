@@ -52,6 +52,7 @@ import {
         VariantOption,
       ],
       synchronize: false,
+      autoLoadEntities: true,
     }),
   ],
   controllers: [AppController],
