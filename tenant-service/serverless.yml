@@ -5,6 +5,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-plugin-optimize
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -59,3 +60,6 @@ custom:
   TenantsTable:
     name: !Ref TenantsTable
     arn: !GetAtt TenantsTable.Arn
+  serverless-offline:
+    httpPort: ${env:TENANT_SERVICE_PORT}
+    lambdaPort: ${env:LAMBDA_PORT}
