@@ -37,7 +37,7 @@ export class OrderRepository {
       customerId: customerId,
       orderDate: dateTime,
       orderStatus: 'placed',
-      TotalPrice: TotalPrice,
+      totalPrice: TotalPrice,
       ...userCart,
     };
     console.log(newOrder);
@@ -55,13 +55,13 @@ export class OrderRepository {
     return { ok: true, data: newOrder };
   }
 
-  async getOrderByOrderId(id): Promise<OrderDetailsFunctionResponseDto> {
+  async getOrderByOrderId(orderId): Promise<OrderDetailsFunctionResponseDto> {
     let order: any;
     try {
       const result = await client
         .get({
           TableName: 'OrdersTable-dev',
-          Key: { id },
+          Key: { orderId },
         })
         .promise();
       if (Object.keys(result).length === 0) {
@@ -74,7 +74,7 @@ export class OrderRepository {
     }
 
     if (!order) {
-      throw new NotFoundException(`Order with ID "${id}" not found`);
+      throw new NotFoundException(`Order with ID "${orderId}" not found`);
     }
 
     return { ok: true, data: order };

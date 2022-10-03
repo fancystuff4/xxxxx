@@ -30,7 +30,7 @@ import {
       host: 'localhost',
       port: 3306,
       username: 'root',
-      password: '12345678',
+      password: '',
       database: 'multitenant-product-db',
       entities: [
         Brand,
@@ -48,6 +48,7 @@ import {
         VariantOption,
       ],
       synchronize: false,
+      autoLoadEntities: true,
     }),
   ],
   controllers: [AppController],

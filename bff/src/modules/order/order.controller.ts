@@ -9,6 +9,7 @@ import {
   HttpStatus,
   HttpException,
   Put,
+  UseGuards,
 } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { HttpService } from '@nestjs/axios';
@@ -20,6 +21,8 @@ import { AuthenticationService } from '../authentication/authentication.service'
 import { ProductService } from '../product/product/product.service';
 import { VariantService } from '../product/product/variant/variant.service';
 import { CartService } from '../cart/cart.service';
+import { AuthGuard } from 'src/common/guards/auth.guard';
+import { UserService } from '../user/user.service';
 // import { LogoutDto, LogoutResponseDto } from './dto/logout.dto';
 // import { GetRefreshTokenDto, GetRefreshTokenResponseDto } from './dto/refresh.dto';
 // import { ErrorDto, ErrorResponseDto } from './dto/error.dto';
@@ -29,6 +32,7 @@ import { CartService } from '../cart/cart.service';
 // import { SigninInputDto, SignupInputDto } from './dto/userDetailsInput.dto';
 
 @Controller('desktop')
+// @UseGuards(AuthGuard)
 class OrderController {
   constructor(
     private orderService: OrderService,
@@ -36,6 +40,7 @@ class OrderController {
     private authService: AuthenticationService,
     private variantService: VariantService,
     private cartService: CartService,
+    private userService: UserService,
   ) {}
 
   @Post([DESKTOP_ROUTES.CREATE_ORDER, MOBILE_ROUTES.CREATE_ORDER])
@@ -45,27 +50,50 @@ class OrderController {
     @Response() res: any,
   ): Promise<void> {
     let customerId = '';
+    let tenantId = '';
     const requestedHeader: any = {
       authorization: `${req.headers.authorization}`,
     };
     if (req.headers.authorization) {
       const response = await this.authService.getProfile(requestedHeader);
+
+      tenantId = response.data.tenantId;
       customerId = response.data.username;
     } else {
       throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
     }
     const userCart = await this.cartService.getUserCart(customerId);
+
+    const userAddress = await this.userService.getProfile(customerId, tenantId);
+
     let data = null;
     const items = [];
+    const address = [];
     try {
+      if (userAddress.data[0].address) {
+        for (let value of userAddress?.data[0]?.address) {
+          if (value.default === true) {
+            address.push({
+              placeName: value.placeName,
+              city: value.city,
+              pin: value.pin,
+              state: value.state,
+              country: value.country,
+            });
+          }
+        }
+      }
+
       if (userCart.data) {
         for (let item of userCart?.data?.items) {
           const variant = item.itemDetails.variant;
+
           const variantDetails = await this.variantService.getVariant(
             variant.subcategoryId,
             variant.itemID,
             variant.variantID,
           );
+
           items.push({
             variant: variantDetails.data,
             lineItemID: item.lineItemID,
@@ -75,6 +103,7 @@ class OrderController {
       }
       data = {
         items,
+        address,
       };
       const result: any = await this.orderService.createOrder(customerId, data);
       const emptyCart: any = await this.cartService.deleteCart(

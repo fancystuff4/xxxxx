@@ -44,6 +44,8 @@ export class VariantService {
       undefined,
       3006,
     );
+    
+    
     return result;
   }
 

@@ -80,12 +80,15 @@ export class VariantController {
   @Get(':variantId')
   async getVariantById(
     @GetParameterFromRequest('product') product: Product,
-    @Param('variantId', insertValidationPipe(PipeDataType.UUID))
+    @Param('variantId')
+    
     variantId: string,
     @Res() res: Response,
   ): Promise<void> {
     const variant = await this.variantService.getSingleVariant(product.id, variantId);
     sendResponse(res, HttpStatus.OK, variant);
+    
+    
   }
 
   // delete variant by id
