@@ -66,24 +66,34 @@ class OrderController {
 
     const userAddress = await this.userService.getProfile(customerId, tenantId);
 
+    const address = [];
+
     let data = null;
     const items = [];
-    const address = [];
+
     try {
-      if (userAddress.data[0].address) {
+      if (userAddress?.data[0]?.address) {
+        console.log(userAddress?.data[0]?.address);
+
         for (let value of userAddress?.data[0]?.address) {
           if (value.default === true) {
             address.push({
               placeName: value.placeName,
+              landmark: value.landmark,
               city: value.city,
               pin: value.pin,
               state: value.state,
+              phone: value.phoneNumber,
               country: value.country,
             });
           }
         }
+      } else {
+        console.log('address not found');
+        return res
+          .status(404)
+          .json({ msg: 'Address not found! Please enter your address!' });
       }
-
       if (userCart.data) {
         for (let item of userCart?.data?.items) {
           const variant = item.itemDetails.variant;
