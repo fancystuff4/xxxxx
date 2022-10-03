@@ -9,7 +9,7 @@ export class BrandService {
       'post',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -20,7 +20,7 @@ export class BrandService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -31,7 +31,7 @@ export class BrandService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -42,7 +42,7 @@ export class BrandService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -53,7 +53,7 @@ export class BrandService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -64,7 +64,7 @@ export class BrandService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -75,7 +75,7 @@ export class BrandService {
       'post',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -86,7 +86,7 @@ export class BrandService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -97,7 +97,7 @@ export class BrandService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -108,7 +108,7 @@ export class BrandService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }

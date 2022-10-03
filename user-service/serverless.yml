@@ -5,6 +5,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-plugin-optimize
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -58,3 +59,6 @@ custom:
   UsersTable:
     name: !Ref UsersTable
     arn: !GetAtt UsersTable.Arn
+  serverless-offline:
+    httpPort: ${env:USER_SERVICE_PORT}
+    lambdaPort: ${env:LAMBDA_PORT}

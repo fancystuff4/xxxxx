@@ -5,6 +5,7 @@ plugins:
   - serverless-plugin-typescript
   - serverless-plugin-optimize
   - serverless-offline
+  - serverless-dotenv-plugin
 
 provider:
   name: aws
@@ -56,5 +57,5 @@ custom:
     name: !Ref OrdersTable
     arn: !GetAtt OrdersTable.Arn
   serverless-offline:
-    httpPort: 5000
-    lambdaPort: 4008
+    httpPort: ${env:ORDER_SERVICE_PORT}
+    lambdaPort: ${env:LAMBDA_PORT}
