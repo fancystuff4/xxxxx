@@ -79,9 +79,11 @@ class OrderController {
           if (value.default === true) {
             address.push({
               placeName: value.placeName,
+              landmark: value.landmark,
               city: value.city,
               pin: value.pin,
               state: value.state,
+              phone: value.phoneNumber,
               country: value.country,
             });
           }
