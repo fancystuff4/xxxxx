@@ -14,10 +14,12 @@ export const profileDataArr = [
 
 export const profileAddressDataArr = [
   'placeName',
+  'landmark',
   'city',
   'state',
   'country',
   'pin',
+  'phoneNumber',
   'default',
 ];
 

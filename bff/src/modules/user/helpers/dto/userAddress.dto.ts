@@ -6,6 +6,9 @@ export class UserProfileAddressDto {
   placeName: string;
 
   @IsNotEmpty()
+  landmark: string;
+
+  @IsNotEmpty()
   city: string;
 
   @IsNotEmpty()
@@ -17,4 +20,8 @@ export class UserProfileAddressDto {
   @IsNotEmpty()
   @IsNumber()
   pin: string;
+
+  @IsNotEmpty()
+  @IsNumber()
+  phoneNumber: string;
 }
