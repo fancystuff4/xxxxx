@@ -51,6 +51,7 @@ class UserController {
   async getProfile(@Request() req: any, @Response() res: any): Promise<any> {
     let userId = '';
     let tenantId = '';
+
     const requestedHeader: any = {
       authorization: `${req.headers.authorization}`,
     };
