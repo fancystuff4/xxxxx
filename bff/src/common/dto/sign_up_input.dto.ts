@@ -1,5 +1,6 @@
 import { IsEmail, IsNotEmpty, ValidateIf } from 'class-validator';
 import { ROLES } from '../helpers/user.types';
+import { ApiProperty, ApiBody } from '@nestjs/swagger';
 export class SignUpInputDto {
 
   @IsNotEmpty()

@@ -1,5 +1,6 @@
 import { IsNotEmpty, IsEmail, ValidateIf } from "class-validator";
 import { ROLES } from "../helpers/user.types";
+import { ApiProperty, ApiBody } from '@nestjs/swagger';
 
 export class RefreshToken {
 
