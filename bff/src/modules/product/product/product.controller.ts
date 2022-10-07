@@ -128,10 +128,8 @@ class ProductController {
     @Param('productId') productId: string,
     @Response() res: any,
   ): Promise<ProductImageCreateDto> {
-    let imageUrl = '';
-    try {
-      imageUrl = await this.filesService.uploadFile(file);
-    } catch (error) {}
+    const imageUrl = await this.filesService.uploadFile(file);
+
     const imageUrlObj = {
       images: [
         {
