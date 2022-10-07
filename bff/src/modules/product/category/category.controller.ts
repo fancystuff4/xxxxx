@@ -107,16 +107,12 @@ class CategoryController {
   ): Promise<CategoryImageCreateDto> {
     const imageUrl = await this.filesService.uploadFile(file);
 
-    const imageUrlObj = {
-      images: [
-        {
-          src: imageUrl,
-        },
-      ],
+    const imageUrlString = {
+      src: imageUrl,
     };
 
     const result: any = await this.categoryService.addCategoryImage(
-      imageUrlObj,
+      imageUrlString,
       id,
     );
     return res.status(result.statusCode).json(result);
