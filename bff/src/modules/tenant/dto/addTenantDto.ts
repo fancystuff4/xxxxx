@@ -1,4 +1,5 @@
 import { IsBoolean, IsNotEmpty, IsEmail, IsNumber } from 'class-validator';
+import { ApiProperty, ApiBody } from '@nestjs/swagger';
 
 export class AddTenantDto {
   @IsNotEmpty()

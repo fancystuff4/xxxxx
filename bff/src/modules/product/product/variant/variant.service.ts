@@ -9,7 +9,7 @@ export class VariantService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -20,7 +20,7 @@ export class VariantService {
       'put',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -31,7 +31,7 @@ export class VariantService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -42,7 +42,7 @@ export class VariantService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
 
     return result;
@@ -54,7 +54,7 @@ export class VariantService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -65,7 +65,7 @@ export class VariantService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -76,7 +76,7 @@ export class VariantService {
       'post',
       body,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -87,7 +87,7 @@ export class VariantService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -98,7 +98,7 @@ export class VariantService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }

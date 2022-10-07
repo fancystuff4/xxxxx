@@ -9,7 +9,7 @@ export class SubCategoryService {
       'post',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -20,7 +20,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -31,7 +31,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -42,7 +42,7 @@ export class SubCategoryService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -53,7 +53,7 @@ export class SubCategoryService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -64,7 +64,7 @@ export class SubCategoryService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -75,7 +75,7 @@ export class SubCategoryService {
       'post',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -86,7 +86,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -97,7 +97,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -108,7 +108,7 @@ export class SubCategoryService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -124,7 +124,7 @@ export class SubCategoryService {
       'put',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -135,7 +135,7 @@ export class SubCategoryService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -146,7 +146,7 @@ export class SubCategoryService {
       'post',
       data,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -157,7 +157,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -168,7 +168,7 @@ export class SubCategoryService {
       'get',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }
@@ -179,7 +179,7 @@ export class SubCategoryService {
       'delete',
       undefined,
       undefined,
-      3006,
+      Number(process.env.PRODUCT_SERVICE_PORT),
     );
     return result;
   }

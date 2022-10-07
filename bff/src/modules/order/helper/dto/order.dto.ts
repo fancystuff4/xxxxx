@@ -1,5 +1,6 @@
 import {Type } from 'class-transformer';
 import { IsArray, IsDateString, IsDefined, IsIn, IsNotEmpty, ValidateIf, ValidateNested } from 'class-validator';
+import { ApiProperty, ApiBody } from '@nestjs/swagger';
 
 export class ProductDetailsDto{
     @IsNotEmpty()
