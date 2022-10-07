@@ -44,8 +44,7 @@ export class VariantService {
       undefined,
       3006,
     );
-    
-    
+
     return result;
   }
 
@@ -71,11 +70,11 @@ export class VariantService {
     return result;
   }
 
-  async addVariantImage(data, subCategoryId, productId, variantId) {
+  async addVariantImage(body, subCategoryId, productId, variantId) {
     const result: any = await InvokeAPI(
-      `/subCategories/${subCategoryId}/products/${productId}/variants/${variantId}/options`,
+      `/subCategories/${subCategoryId}/products/${productId}/variants/${variantId}/images`,
       'post',
-      data,
+      body,
       undefined,
       3006,
     );
