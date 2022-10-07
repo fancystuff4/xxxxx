@@ -32,7 +32,7 @@ import { UserService } from '../user/user.service';
 // import { SigninInputDto, SignupInputDto } from './dto/userDetailsInput.dto';
 
 @Controller('desktop')
-// @UseGuards(AuthGuard)
+@UseGuards(AuthGuard)
 class OrderController {
   constructor(
     private orderService: OrderService,
@@ -73,8 +73,6 @@ class OrderController {
 
     try {
       if (userAddress?.data[0]?.address) {
-        console.log(userAddress?.data[0]?.address);
-
         for (let value of userAddress?.data[0]?.address) {
           if (value.default === true) {
             address.push({
@@ -89,7 +87,6 @@ class OrderController {
           }
         }
       } else {
-        console.log('address not found');
         return res
           .status(404)
           .json({ msg: 'Address not found! Please enter your address!' });
@@ -130,10 +127,39 @@ class OrderController {
   @Roles(Role.Tenant)
   async GetOrderByIdApi(
     @Param('id') id: string,
+    @Request() req: any,
     @Response() res: any,
   ): Promise<void> {
+    const requestedHeader: any = {
+      authorization: `${req.headers.authorization}`,
+    };
+
+    let tenantId = '';
+
+    if (req.headers.authorization) {
+      const response = await this.authService.getProfile(requestedHeader);
+
+      tenantId = response.data.tenantId;
+    } else {
+      throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+    }
+
     const result: any = await this.orderService.getOrderById(id);
-    return res.status(result.statusCode).json(result);
+
+    let userId = result.order.customerId;
+
+    const userdetails = await this.userService.getProfile(userId, tenantId);
+
+    let order = result.order;
+
+    let userData = userdetails.data;
+
+    const data = {
+      order,
+      userData,
+    };
+
+    return res.status(result.statusCode).json(data);
   }
 
   @Get([
