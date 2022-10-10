@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { SubCategoryService } from './sub-category.service';
 import { SubCatCreateDto, SubCatUpdateDto } from './dto/sub-category.dto';
@@ -27,7 +28,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { ApiTags } from '@nestjs/swagger';
 import { FilesService } from 'src/modules/files/files.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 @ApiTags('Product SubCategory')
 @Controller()
 @UseGuards(AuthGuard)
@@ -225,29 +226,37 @@ class SubCategoryController {
 
   @Roles(Role.Tenant)
   @Post(DESKTOP_ROUTES.SUB_CATEGORY_IMAGES)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async AddSubCategoryImageApi(
-    @UploadedFile() file,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Param('subCategoryId') subCategoryId: string,
     @Param('id') id: string,
     @Response() res: any,
   ): Promise<SubCatImageCreateDto> {
-    const imageUrl = await this.filesService.uploadFile(file);
+    let imageUrlResult = [];
+    for (let i = 0; i < files.length; i++) {
+      const imageUrl = await this.filesService.uploadFile(files[i]);
 
-    const imageUrlObj = {
-      images: [
-        {
-          src: imageUrl,
-        },
-      ],
-    };
+      const imageUrlObj = {
+        images: [
+          {
+            src: imageUrl,
+          },
+        ],
+      };
+      imageUrlResult.push(imageUrlObj);
+    }
 
-    const result: any = await this.subCategoryService.addSubCategoryImage(
-      imageUrlObj,
-      id,
-      subCategoryId,
-    );
-    return res.status(result.statusCode).json(result);
+    let results = [];
+    for (let j of imageUrlResult) {
+      const result: any = await this.subCategoryService.addSubCategoryImage(
+        j,
+        id,
+        subCategoryId,
+      );
+      results.push(result);
+    }
+    return res.status(results[0].statusCode).json(results);
   }
 
   @PublicRoute()
