@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { VariantService } from './variant.service';
 import { VariantUpdateDto } from './dto/variant.dto';
@@ -21,7 +22,7 @@ import { AuthGuard } from 'src/common/guards/auth.guard';
 import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { ApiTags } from '@nestjs/swagger';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { FilesService } from 'src/modules/files/files.service';
 
 @ApiTags('Product Variant')
@@ -134,32 +135,39 @@ class VariantController {
 
   @Roles(Role.Tenant)
   @Post(DESKTOP_ROUTES.VARIANT_IMAGES)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async AddVariantImageApi(
-    @UploadedFile() file,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Response() res: any,
     @Param('subCategoryId') subCategoryId: string,
     @Param('productId') productId: string,
     @Param('variantId') variantId: string,
   ): Promise<VariantImageCreateDto> {
-    const imageUrl = await this.filesService.uploadFile(file);
+    let imageUrlResult = [];
+    for (let i = 0; i < files.length; i++) {
+      const imageUrl = await this.filesService.uploadFile(files[i]);
 
-    const imageUrlObj = {
-      images: [
-        {
-          src: imageUrl,
-        },
-      ],
-    };
+      const imageUrlObj = {
+        images: [
+          {
+            src: imageUrl,
+          },
+        ],
+      };
+      imageUrlResult.push(imageUrlObj);
+    }
 
-    const result: any = await this.variantService.addVariantImage(
-      imageUrlObj,
-      subCategoryId,
-      productId,
-      variantId,
-    );
-
-    return res.status(result.statusCode).json(result);
+    let results = [];
+    for (let j of imageUrlResult) {
+      const result: any = await this.variantService.addVariantImage(
+        j,
+        subCategoryId,
+        productId,
+        variantId,
+      );
+      results.push(result);
+    }
+    return res.status(results[0].statusCode).json(results);
   }
 
   @PublicRoute()

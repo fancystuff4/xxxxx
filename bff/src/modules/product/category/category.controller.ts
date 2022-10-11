@@ -10,6 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
   UploadedFile,
+  UploadedFiles,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CategoryCreateDto, CategoryUpdateDto } from './dto/category.dto';
@@ -25,7 +26,7 @@ import { Roles } from 'src/common/decorators/roles.decorator';
 import { Role } from 'src/common/enums/role.enum';
 import { ApiTags } from '@nestjs/swagger';
 import { FilesService } from 'src/modules/files/files.service';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 @ApiTags('Product Category')
 @Controller()
 @UseGuards(AuthGuard)
@@ -99,23 +100,28 @@ class CategoryController {
 
   @Roles(Role.Tenant)
   @Post(DESKTOP_ROUTES.CATEGORY_IMAGES)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async AddCategoryImageApi(
-    @UploadedFile() file,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Param('id') id: string,
     @Response() res: any,
   ): Promise<CategoryImageCreateDto> {
-    const imageUrl = await this.filesService.uploadFile(file);
+    let imageUrlResult = [];
+    for (let i = 0; i < files.length; i++) {
+      const imageUrl = await this.filesService.uploadFile(files[i]);
 
-    const imageUrlString = {
-      src: imageUrl,
-    };
+      const imageUrlString = {
+        src: imageUrl,
+      };
+      imageUrlResult.push(imageUrlString);
+    }
 
-    const result: any = await this.categoryService.addCategoryImage(
-      imageUrlString,
-      id,
-    );
-    return res.status(result.statusCode).json(result);
+    let results = [];
+    for (let j of imageUrlResult) {
+      const result: any = await this.categoryService.addCategoryImage(j, id);
+      results.push(result);
+    }
+    return res.status(results[0].statusCode).json(results);
   }
 
   @PublicRoute()

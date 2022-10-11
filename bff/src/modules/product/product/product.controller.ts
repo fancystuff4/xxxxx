@@ -11,8 +11,9 @@ import {
   UseGuards,
   UploadedFile,
   UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
+import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { ProductService } from './product.service';
 import { ProductCreateDto } from './dto/product.dto';
 import { UpdateProductStatusDto } from './dto/product.status.dto';
@@ -121,29 +122,37 @@ class ProductController {
 
   @Roles(Role.Tenant)
   @Post(DESKTOP_ROUTES.PRODUCT_IMAGES)
-  @UseInterceptors(FileInterceptor('file'))
+  @UseInterceptors(FilesInterceptor('files'))
   async AddProductImagesApi(
-    @UploadedFile() file,
+    @UploadedFiles() files: Array<Express.Multer.File>,
     @Param('subCategoryId') subCategoryId: string,
     @Param('productId') productId: string,
     @Response() res: any,
   ): Promise<ProductImageCreateDto> {
-    const imageUrl = await this.filesService.uploadFile(file);
+    let imageUrlResult = [];
+    for (let i = 0; i < files.length; i++) {
+      const imageUrl = await this.filesService.uploadFile(files[i]);
 
-    const imageUrlObj = {
-      images: [
-        {
-          src: imageUrl,
-        },
-      ],
-    };
-
-    const result: any = await this.productService.addProductImages(
-      imageUrlObj,
-      subCategoryId,
-      productId,
-    );
-    return res.status(result.statusCode).json(result);
+      const imageUrlObj = {
+        images: [
+          {
+            src: imageUrl,
+          },
+        ],
+      };
+      imageUrlResult.push(imageUrlObj);
+    }
+    console.log(imageUrlResult);
+    let results = [];
+    for (let j of imageUrlResult) {
+      const result: any = await this.productService.addProductImages(
+        j,
+        subCategoryId,
+        productId,
+      );
+      results.push(result);
+    }
+    return res.status(results[0].statusCode).json(results);
   }
 
   @PublicRoute()
